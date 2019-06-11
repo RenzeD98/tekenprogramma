@@ -1,14 +1,30 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 //initializing size and the context of the canvas
 var canvas = document.getElementById('canvas');
 var c = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-//tool type listeren
-var usedTool = 0;
+//wacthing the change in a tool used
+var usedTool = 1;
 function changeTool(radio) {
-    usedTool = radio.value;
+    if (radio) {
+        usedTool = radio.value;
+        console.log('current tool is: ' + usedTool);
+    }
 }
-// Mouse event listener
+// Mouse event listener and object
 var mouse = {
     x: undefined,
     y: undefined
@@ -17,29 +33,36 @@ window.addEventListener('mousemove', function (event) {
     mouse.x = event.x;
     mouse.y = event.y;
 });
+//objects array
+var startOfObject = true;
+var objects = [];
 var DrawObject = /** @class */ (function () {
-    function DrawObject(x, y) {
-        this.x = x;
-        this.y = y;
+    function DrawObject(xStart, yStart) {
+        this.xStart = xStart;
+        this.yStart = yStart;
     }
     return DrawObject;
 }());
-var Rect = /** @class */ (function () {
-    function Rect(x, y, width, height, color) {
-        this.lineWidth = 5;
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.color = color;
+var Rect = /** @class */ (function (_super) {
+    __extends(Rect, _super);
+    function Rect(x, y, color) {
+        var _this = _super.call(this, x, y) || this;
+        _this.color = 'green';
+        _this.lineWidth = 5;
+        _this.color = color;
+        return _this;
     }
-    Rect.prototype.createRect = function () {
+    Rect.prototype.createRect = function (x, y) {
         c.fillStyle = this.color;
         c.lineWidth = this.lineWidth;
-        c.fillRect(this.x, this.y, this.width, this.height);
+        //xStart = 20 | x = 1
+        //yStart = 1 | y = 20
+        var width = x - this.xStart;
+        var height = y - this.yStart;
+        c.fillRect(this.xStart, this.yStart, width, height);
     };
     return Rect;
-}());
+}(DrawObject));
 var Line = /** @class */ (function () {
     function Line(x, y, color) {
         this.xStart = x;
@@ -82,19 +105,10 @@ var Arc = /** @class */ (function () {
     };
     return Arc;
 }());
-// /**
-//  * Create rectangle with variables in constructor
-//  */
-// let rectangle = new Rect(500, 500, 200, 400, 'green');
-//     rectangle.createRect();
-//
-// /**
-//  * Create Line with different anchorpoints
-//  */
-// let newLine = new Line(40, 50, 'blue');
-//     newLine.createAnchor(100, 150);
-//     newLine.createAnchor(130, 80);
-//
+// function animate(){
+//     requestAnimationFrame(animate)
+// }
+// animate();
 // /**
 //  * Create arc
 //  */
@@ -103,21 +117,32 @@ var Arc = /** @class */ (function () {
 /**
  * Free draw
  */
-var beginLine = true;
-var line;
 window.addEventListener('mousemove', function (event) {
     if (usedTool == 1) {
         if (event.buttons === 1) {
-            if (beginLine) {
-                line = new Line(mouse.x, mouse.y, 'black');
-                beginLine = false;
+            if (startOfObject) {
+                objects.push(new Line(mouse.x, mouse.y, 'black'));
+                startOfObject = false;
             }
             else {
-                line.createAnchor(mouse.x, mouse.y);
+                objects[objects.length - 1].createAnchor(mouse.x, mouse.y);
             }
         }
         else {
-            beginLine = true;
+            startOfObject = true;
+        }
+    }
+});
+window.addEventListener('mouseup', function (event) {
+    if (usedTool == 3) {
+        if (startOfObject) {
+            objects.push(new Rect(mouse.x, mouse.y, 'green'));
+            startOfObject = false;
+        }
+        else {
+            console.log(objects);
+            objects[objects.length - 1].createRect(mouse.x, mouse.y);
+            startOfObject = true;
         }
     }
 });

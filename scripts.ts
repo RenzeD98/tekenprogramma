@@ -4,13 +4,16 @@ let c = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-//tool type listeren
-let usedTool:number = 0;
+//wacthing the change in a tool used
+let usedTool:number = 1;
 function changeTool(radio){
-    usedTool = radio.value;
+    if(radio) {
+        usedTool = radio.value;
+        console.log('current tool is: ' + usedTool);
+    }
 }
 
-// Mouse event listener
+// Mouse event listener and object
 let mouse = {
     x: undefined,
     y: undefined
@@ -21,38 +24,43 @@ window.addEventListener('mousemove', function(event){
     mouse.y = event.y;
 });
 
+//objects array
+let startOfObject:boolean = true;
+let objects = [];
+
+
 class DrawObject
 {
-    x:number;
-    y:number;
+    xStart:number;
+    yStart:number;
 
-    constructor(x:number, y:number) {
-        this.x = x;
-        this.y = y;
+    constructor(xStart:number, yStart:number) {
+        this.xStart = xStart;
+        this.yStart = yStart;
     }
 }
 
-class Rect
+class Rect extends DrawObject
 {
-    x:number;
-    y:number;
-    width:number;
-    height:number;
-    color:string;
+    color:string = 'green';
     lineWidth:number = 5;
 
-    constructor(x:number, y:number, width:number, height:number, color:string){
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    constructor(x:number, y:number, color:string){
+        super(x, y);
         this.color = color;
     }
 
-    createRect(){
+    createRect(x:number, y:number){
         c.fillStyle = this.color;
         c.lineWidth = this.lineWidth;
-        c.fillRect(this.x, this.y, this.width, this.height);
+
+        //xStart = 20 | x = 1
+        //yStart = 1 | y = 20
+
+        let width = x - this.xStart;
+        let height = y - this.yStart;
+
+        c.fillRect(this.xStart, this.yStart, width, height);
     }
 }
 
@@ -118,45 +126,48 @@ class Arc
     }
 }
 
+// function animate(){
+//     requestAnimationFrame(animate)
+// }
 
-// /**
-//  * Create rectangle with variables in constructor
-//  */
-// let rectangle = new Rect(500, 500, 200, 400, 'green');
-//     rectangle.createRect();
-//
-// /**
-//  * Create Line with different anchorpoints
-//  */
-// let newLine = new Line(40, 50, 'blue');
-//     newLine.createAnchor(100, 150);
-//     newLine.createAnchor(130, 80);
-//
+// animate();
+
+
 // /**
 //  * Create arc
 //  */
 // let newArc = new Arc(400, 400, 40, 0, Math.PI * 2, false, 'yellow', 'green');
 //     newArc.createArc(true, true);
 
-
 /**
  * Free draw
  */
-let beginLine:boolean = true;
-let line:Line;
 window.addEventListener('mousemove', function (event) {
     if (usedTool == 1) {
         if (event.buttons === 1) {
-            if (beginLine) {
-                line = new Line(mouse.x, mouse.y, 'black');
-                beginLine = false;
+            if (startOfObject) {
+                objects.push(new Line(mouse.x, mouse.y, 'black'));
+                startOfObject = false;
             } else {
-                line.createAnchor(mouse.x, mouse.y);
+                objects[objects.length-1].createAnchor(mouse.x, mouse.y);
             }
         } else {
-            beginLine = true;
+            startOfObject = true;
         }
     }
+});
+
+window.addEventListener('mouseup', function(event){
+   if(usedTool == 3){
+       if(startOfObject){
+           objects.push(new Rect(mouse.x, mouse.y,  'green'));
+           startOfObject = false;
+       } else {
+           console.log(objects);
+           objects[objects.length-1].createRect(mouse.x, mouse.y);
+           startOfObject = true;
+       }
+   }
 });
 
 
