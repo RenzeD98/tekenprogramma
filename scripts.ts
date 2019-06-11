@@ -31,6 +31,7 @@ class DrawObject
 {
     xStart:number;
     yStart:number;
+    color:string; //TODO: toevoegen als super
 
     constructor(xStart:number, yStart:number) {
         this.xStart = xStart;
@@ -38,28 +39,15 @@ class DrawObject
     }
 }
 
-class Rect extends DrawObject
+class ShapedObject extends DrawObject
 {
-    color:string;
-    lineWidth:number;
+    outlineColor: string; //TODO:toevoegen als super van subclass
+    outlineWidth: number;
 
-    constructor(x:number, y:number, color:string){
-        super(x, y);
-        this.color = color;
-        this.lineWidth = 5;
-    }
-
-    createRect(x:number, y:number){
-        c.fillStyle = this.color;
-        c.lineWidth = this.lineWidth;
-
-        //xStart = 20 | x = 1
-        //yStart = 1 | y = 20
-
-        let width = x - this.xStart;
-        let height = y - this.yStart;
-
-        c.fillRect(this.xStart, this.yStart, width, height);
+    constructor(x:number, y:number, outlineColor:string, outlineWidth: number){
+        super(x,y);
+        this.outlineColor = outlineColor;
+        this.outlineWidth = outlineWidth;
     }
 }
 
@@ -86,6 +74,25 @@ class Line extends DrawObject
     }
 }
 
+class Rect extends DrawObject
+{
+    color:string;
+
+    constructor(x:number, y:number, color:string){
+        super(x, y);
+        this.color = color;
+    }
+
+    createRect(x:number, y:number){
+        c.fillStyle = this.color;
+
+        let width = x - this.xStart;
+        let height = y - this.yStart;
+
+        c.fillRect(this.xStart, this.yStart, width, height);
+    }
+}
+
 class Arc extends DrawObject
 {
     fillColor:string;
@@ -106,7 +113,7 @@ class Arc extends DrawObject
     }
 
     createArc(x:number, y:number, outline:boolean, fill:boolean){
-        
+
         let radius = Math.sqrt(Math.pow((x - this.xStart), 2) + Math.pow((y - this.yStart), 2));
 
         c.beginPath();

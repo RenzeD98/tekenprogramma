@@ -42,24 +42,15 @@ var DrawObject = /** @class */ (function () {
     }
     return DrawObject;
 }());
-var Rect = /** @class */ (function (_super) {
-    __extends(Rect, _super);
-    function Rect(x, y, color) {
+var ShapedObject = /** @class */ (function (_super) {
+    __extends(ShapedObject, _super);
+    function ShapedObject(x, y, outlineColor, outlineWidth) {
         var _this = _super.call(this, x, y) || this;
-        _this.color = color;
-        _this.lineWidth = 5;
+        _this.outlineColor = outlineColor;
+        _this.outlineWidth = outlineWidth;
         return _this;
     }
-    Rect.prototype.createRect = function (x, y) {
-        c.fillStyle = this.color;
-        c.lineWidth = this.lineWidth;
-        //xStart = 20 | x = 1
-        //yStart = 1 | y = 20
-        var width = x - this.xStart;
-        var height = y - this.yStart;
-        c.fillRect(this.xStart, this.yStart, width, height);
-    };
-    return Rect;
+    return ShapedObject;
 }(DrawObject));
 var Line = /** @class */ (function (_super) {
     __extends(Line, _super);
@@ -78,6 +69,21 @@ var Line = /** @class */ (function (_super) {
         c.stroke();
     };
     return Line;
+}(DrawObject));
+var Rect = /** @class */ (function (_super) {
+    __extends(Rect, _super);
+    function Rect(x, y, color) {
+        var _this = _super.call(this, x, y) || this;
+        _this.color = color;
+        return _this;
+    }
+    Rect.prototype.createRect = function (x, y) {
+        c.fillStyle = this.color;
+        var width = x - this.xStart;
+        var height = y - this.yStart;
+        c.fillRect(this.xStart, this.yStart, width, height);
+    };
+    return Rect;
 }(DrawObject));
 var Arc = /** @class */ (function (_super) {
     __extends(Arc, _super);
