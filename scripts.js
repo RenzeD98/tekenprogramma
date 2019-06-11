@@ -19,10 +19,7 @@ canvas.height = window.innerHeight;
 //wacthing the change in a tool used
 var usedTool = 1;
 function changeTool(radio) {
-    if (radio) {
-        usedTool = radio.value;
-        console.log('current tool is: ' + usedTool);
-    }
+    usedTool = radio.value;
 }
 // Mouse event listener and object
 var mouse = {
@@ -36,6 +33,8 @@ window.addEventListener('mousemove', function (event) {
 //objects array
 var startOfObject = true;
 var objects = [];
+var lastObjectItem = 0;
+// Classes -------------------------------------------------------------------------
 var DrawObject = /** @class */ (function () {
     function DrawObject(xStart, yStart) {
         this.xStart = xStart;
@@ -47,9 +46,8 @@ var Rect = /** @class */ (function (_super) {
     __extends(Rect, _super);
     function Rect(x, y, color) {
         var _this = _super.call(this, x, y) || this;
-        _this.color = 'green';
-        _this.lineWidth = 5;
         _this.color = color;
+        _this.lineWidth = 5;
         return _this;
     }
     Rect.prototype.createRect = function (x, y) {
@@ -63,37 +61,41 @@ var Rect = /** @class */ (function (_super) {
     };
     return Rect;
 }(DrawObject));
-var Line = /** @class */ (function () {
+var Line = /** @class */ (function (_super) {
+    __extends(Line, _super);
     function Line(x, y, color) {
-        this.xStart = x;
-        this.yStart = y;
-        this.color = color;
+        var _this = _super.call(this, x, y) || this;
+        _this.color = color;
+        _this.lineWidth = 5;
         c.beginPath();
-        c.moveTo(this.xStart, this.yStart);
+        c.moveTo(_this.xStart, _this.yStart);
         c.strokeStyle = color;
+        return _this;
     }
     Line.prototype.createAnchor = function (x, y) {
+        c.lineWidth = this.lineWidth;
         c.lineTo(x, y);
         c.stroke();
     };
     return Line;
-}());
-var Arc = /** @class */ (function () {
-    function Arc(x, y, radius, startAngle, endAngle, counterClockWise, fillColor, outlineColor) {
-        this.lineWidth = 5;
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
-        this.startAngle = startAngle;
-        this.endAngle = endAngle;
-        this.counterClockWise = counterClockWise;
-        this.fillColor = fillColor;
-        this.outlinecolor = outlineColor;
+}(DrawObject));
+var Arc = /** @class */ (function (_super) {
+    __extends(Arc, _super);
+    function Arc(x, y) {
+        var _this = _super.call(this, x, y) || this;
+        _this.fillColor = "blue";
+        _this.outlinecolor = "black";
+        _this.startAngle = 0;
+        _this.endAngle = Math.PI * 2;
+        _this.counterClockWise = false;
+        _this.lineWidth = 5;
+        return _this;
     }
-    Arc.prototype.createArc = function (outline, fill) {
+    Arc.prototype.createArc = function (x, y, outline, fill) {
+        var radius = Math.sqrt(Math.pow((x - this.xStart), 2) + Math.pow((y - this.yStart), 2));
         c.beginPath();
-        c.arc(this.x, this.y, this.radius, this.startAngle, this.endAngle, this.counterClockWise);
         c.lineWidth = this.lineWidth;
+        c.arc(this.xStart, this.yStart, radius, this.startAngle, this.endAngle, this.counterClockWise);
         if (outline) {
             c.strokeStyle = this.outlinecolor;
             c.stroke();
@@ -104,18 +106,17 @@ var Arc = /** @class */ (function () {
         }
     };
     return Arc;
-}());
-// function animate(){
-//     requestAnimationFrame(animate)
-// }
+}(DrawObject));
+// animate canvas for animation while making a square, not yet in use
+function animate() {
+    requestAnimationFrame(animate);
+    c.clearRect(0, 0, innerWidth, innerHeight);
+}
 // animate();
-// /**
-//  * Create arc
-//  */
-// let newArc = new Arc(400, 400, 40, 0, Math.PI * 2, false, 'yellow', 'green');
-//     newArc.createArc(true, true);
+// Event Listeners ----------------------------------------------------------------------------
 /**
  * Free draw
+ * - While holding mouse down
  */
 window.addEventListener('mousemove', function (event) {
     if (usedTool == 1) {
@@ -125,7 +126,8 @@ window.addEventListener('mousemove', function (event) {
                 startOfObject = false;
             }
             else {
-                objects[objects.length - 1].createAnchor(mouse.x, mouse.y);
+                lastObjectItem = objects.length - 1;
+                objects[lastObjectItem].createAnchor(mouse.x, mouse.y);
             }
         }
         else {
@@ -133,15 +135,36 @@ window.addEventListener('mousemove', function (event) {
         }
     }
 });
-window.addEventListener('mouseup', function (event) {
+/**
+ * Draw circle
+ * - With 2 mouse clicks
+ */
+window.addEventListener('mousedown', function (event) {
+    if (usedTool == 2) {
+        if (startOfObject) {
+            objects.push(new Arc(mouse.x, mouse.y));
+            startOfObject = false;
+        }
+        else {
+            lastObjectItem = objects.length - 1;
+            objects[lastObjectItem].createArc(mouse.x, mouse.y, false, true);
+            startOfObject = true;
+        }
+    }
+});
+/**
+ * Draw rectangle
+ * - With 2 mouse clicks
+ */
+window.addEventListener('mousedown', function (event) {
     if (usedTool == 3) {
         if (startOfObject) {
             objects.push(new Rect(mouse.x, mouse.y, 'green'));
             startOfObject = false;
         }
         else {
-            console.log(objects);
-            objects[objects.length - 1].createRect(mouse.x, mouse.y);
+            lastObjectItem = objects.length - 1;
+            objects[lastObjectItem].createRect(mouse.x, mouse.y);
             startOfObject = true;
         }
     }
