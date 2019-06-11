@@ -4,11 +4,18 @@
     <meta charset="UTF-8">
     <title>Tekenprogramma</title>
     <style>
-        body{margin: 0; padding: 0; overflow: hidden}
-        canvas {background-color: #9fcdff}
+        body{margin: 0; padding: 0; overflow: hidden;}
+        canvas {background-color: #9fcdff;}
+        ul{height: 100vh;margin: 0; padding: 0 0 0 10px; background-color: green; position: absolute;}
+        li{list-style: none}
     </style>
 </head>
 <body>
+    <ul>
+        <li><input onchange="changeTool(this)" name="tool" id="draw"   value="1" type="radio"><label for="draw">Tekenen</label></li>
+        <li><input onchange="changeTool(this)" name="tool" id="circel" value="2" type="radio"><label for="circel">Cirkel</label></li>
+        <li><input onchange="changeTool(this)" name="tool" id="square" value="3" type="radio"><label for="square">Vierkant</label></li>
+    </ul>
     <canvas id="canvas"></canvas>
 <script src="scripts.js"></script>
 </body>
