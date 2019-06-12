@@ -8,6 +8,7 @@ canvas.height = window.innerHeight;
 let usedTool:number = 1;
 function changeTool(radio){
     usedTool = radio.value;
+    console.log(objects);
 }
 
 // Mouse event listener and object
@@ -27,6 +28,9 @@ let objects = [];
 let lastObjectItem:number = 0;
 
 // Classes -------------------------------------------------------------------------
+/**
+ * DrawObject
+ */
 class DrawObject
 {
     xStart:number;
@@ -39,6 +43,9 @@ class DrawObject
     }
 }
 
+/**
+ * ShapedObject
+ */
 class ShapedObject extends DrawObject
 {
     outlineColor: string; //TODO:toevoegen als super van subclass
@@ -51,32 +58,49 @@ class ShapedObject extends DrawObject
     }
 }
 
+/**
+ * Line
+ */
 class Line extends DrawObject
 {
     color:string;
     lineWidth:number;
+    anchorPoints = [];
 
     constructor(x:number, y:number, color:string) {
         super(x,y);
         this.color = color;
         this.lineWidth = 5;
-
-        c.beginPath();
-        c.moveTo(this.xStart, this.yStart);
-        c.strokeStyle = color;
     }
-
 
     createAnchor(x:number, y:number){
         c.lineWidth = this.lineWidth;
-        c.lineTo(x, y);
+        this.anchorPoints.push([x,y]);
+
+        this.drawObject(); //misschien overbodig
+    }
+
+    drawObject(){
+        c.beginPath();
+        c.moveTo(this.xStart, this.yStart);
+        c.strokeStyle = this.color;
+
+        for(let i = 0; i < this.anchorPoints.length; i++){
+            c.lineTo(this.anchorPoints[i][0], this.anchorPoints[i][1]);
+        }
         c.stroke();
+
     }
 }
 
+/**
+ * Rect
+ */
 class Rect extends DrawObject
 {
     color:string;
+    width:number;
+    height:number;
 
     constructor(x:number, y:number, color:string){
         super(x, y);
@@ -86,13 +110,21 @@ class Rect extends DrawObject
     createRect(x:number, y:number){
         c.fillStyle = this.color;
 
-        let width = x - this.xStart;
-        let height = y - this.yStart;
+        this.width = x - this.xStart;
+        this.height = y - this.yStart;
 
-        c.fillRect(this.xStart, this.yStart, width, height);
+        this.drawObject(); //mischien niet nodig omdat de animate() dit al doet
+    }
+
+    drawObject(){
+        c.fillStyle = this.color;
+        c.fillRect(this.xStart, this.yStart, this.width, this.height);
     }
 }
 
+/**
+ * Arc
+ */
 class Arc extends DrawObject
 {
     fillColor:string;
@@ -101,6 +133,9 @@ class Arc extends DrawObject
     endAngle:number;
     counterClockWise:boolean;
     lineWidth:number;
+    radius:number;
+    hasOutline:boolean;
+    hasFill:boolean;
 
     constructor(x:number, y:number){
         super(x, y);
@@ -113,18 +148,23 @@ class Arc extends DrawObject
     }
 
     createArc(x:number, y:number, outline:boolean, fill:boolean){
+        this.hasOutline = outline;
+        this.hasFill = fill;
+        this.radius = Math.sqrt(Math.pow((x - this.xStart), 2) + Math.pow((y - this.yStart), 2));
 
-        let radius = Math.sqrt(Math.pow((x - this.xStart), 2) + Math.pow((y - this.yStart), 2));
+        this.drawObject(); //mischien niet nodig omdat de animate() dit al doet
+    }
 
+    drawObject(){
         c.beginPath();
         c.lineWidth = this.lineWidth;
-        c.arc(this.xStart, this.yStart, radius, this.startAngle, this.endAngle, this.counterClockWise);
+        c.arc(this.xStart, this.yStart, this.radius, this.startAngle, this.endAngle, this.counterClockWise);
 
-        if(outline){
+        if(this.hasOutline){
             c.strokeStyle = this.outlinecolor;
             c.stroke();
         }
-        if(fill){
+        if(this.hasFill){
             c.fillStyle = this.fillColor;
             c.fill();
         }
@@ -135,17 +175,20 @@ class Arc extends DrawObject
 function animate(){
     requestAnimationFrame(animate);
     c.clearRect(0,0, innerWidth, innerHeight);
+
+    for (let i = 0; i < objects.length; i++ ){
+        objects[i].drawObject();
+    }
 }
-// animate();
+animate();
 
 // Event Listeners ----------------------------------------------------------------------------
-
 /**
  * Free draw
  * - While holding mouse down
  */
 window.addEventListener('mousemove', function (event) {
-    if (usedTool == 1) {
+    if (usedTool == 1 && event.toElement === canvas) {
         if (event.buttons === 1) {
             if (startOfObject) {
                 objects.push(new Line(mouse.x, mouse.y, 'black'));
@@ -165,7 +208,7 @@ window.addEventListener('mousemove', function (event) {
  * - With 2 mouse clicks
  */
 window.addEventListener('mousedown', function(event){
-    if(usedTool == 2){
+    if(usedTool == 2 && event.toElement === canvas){
         if(startOfObject){
             objects.push(new Arc(mouse.x, mouse.y));
             startOfObject = false;
@@ -176,13 +219,21 @@ window.addEventListener('mousedown', function(event){
         }
     }
 });
+window.addEventListener('mousemove', function (event) {
+    if (usedTool == 2 && event.toElement === canvas) {
+        if(!startOfObject){
+            lastObjectItem = objects.length - 1;
+            objects[lastObjectItem].createArc(mouse.x, mouse.y, false, true);
+        }
+    }
+});
 
 /**
  * Draw rectangle
  * - With 2 mouse clicks
  */
 window.addEventListener('mousedown', function(event){
-   if(usedTool == 3){
+   if(usedTool == 3 && event.toElement === canvas){
        if(startOfObject){
            objects.push(new Rect(mouse.x, mouse.y,  'green'));
            startOfObject = false;
@@ -193,3 +244,15 @@ window.addEventListener('mousedown', function(event){
        }
    }
 });
+window.addEventListener('mousemove', function (event) {
+    if (usedTool == 3 && event.toElement === canvas) {
+        if(!startOfObject){
+            lastObjectItem = objects.length - 1;
+            objects[lastObjectItem].createRect(mouse.x, mouse.y);
+        }
+    }
+});
+
+function removeLast(){
+    objects.pop();
+}
