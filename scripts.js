@@ -16,6 +16,7 @@ var canvas = document.getElementById('canvas');
 var c = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+//TODO: Class maken van toolbar || Enums opzoeken
 //wacthing the change in a tool used
 var usedTool = 1;
 function changeTool(radio) {
@@ -36,6 +37,20 @@ var startOfObject = true;
 var objects = [];
 var lastObjectItem = 0;
 // Classes -------------------------------------------------------------------------
+var DrawCanvas = /** @class */ (function () {
+    function DrawCanvas(width, height) {
+        this.objects = [];
+        this.startOfObject = true;
+        this.lastObjectIndex = 0;
+        this.mouse = {
+            x: undefined,
+            y: undefined
+        };
+        this.width = width;
+        this.height = height;
+    }
+    return DrawCanvas;
+}());
 /**
  * DrawObject
  */
@@ -117,7 +132,7 @@ var Arc = /** @class */ (function (_super) {
     function Arc(x, y) {
         var _this = _super.call(this, x, y) || this;
         _this.fillColor = "blue";
-        _this.outlinecolor = "black";
+        _this.outlineColor = "black";
         _this.startAngle = 0;
         _this.endAngle = Math.PI * 2;
         _this.counterClockWise = false;
@@ -135,7 +150,7 @@ var Arc = /** @class */ (function (_super) {
         c.lineWidth = this.lineWidth;
         c.arc(this.xStart, this.yStart, this.radius, this.startAngle, this.endAngle, this.counterClockWise);
         if (this.hasOutline) {
-            c.strokeStyle = this.outlinecolor;
+            c.strokeStyle = this.outlineColor;
             c.stroke();
         }
         if (this.hasFill) {

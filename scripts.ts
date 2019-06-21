@@ -4,6 +4,8 @@ let c = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+
+//TODO: Class maken van toolbar || Enums opzoeken
 //wacthing the change in a tool used
 let usedTool:number = 1;
 function changeTool(radio){
@@ -28,6 +30,25 @@ let objects = [];
 let lastObjectItem:number = 0;
 
 // Classes -------------------------------------------------------------------------
+
+class DrawCanvas
+{
+    width:number;
+    height:number;
+    objects = [];
+    startOfObject:boolean = true;
+    lastObjectIndex:number = 0;
+    mouse = {
+        x:undefined,
+        y:undefined
+    };
+
+    constructor(width:number, height:number){
+        this.width = width;
+        this.height = height;
+    }
+}
+
 /**
  * DrawObject
  */
@@ -98,7 +119,6 @@ class Line extends DrawObject
  */
 class Rect extends DrawObject
 {
-    color:string;
     width:number;
     height:number;
 
@@ -128,7 +148,7 @@ class Rect extends DrawObject
 class Arc extends DrawObject
 {
     fillColor:string;
-    outlinecolor:string;
+    outlineColor:string;
     startAngle:number;
     endAngle:number;
     counterClockWise:boolean;
@@ -140,7 +160,7 @@ class Arc extends DrawObject
     constructor(x:number, y:number){
         super(x, y);
         this.fillColor = "blue";
-        this.outlinecolor = "black";
+        this.outlineColor = "black";
         this.startAngle = 0;
         this.endAngle = Math.PI * 2;
         this.counterClockWise = false;
@@ -161,7 +181,7 @@ class Arc extends DrawObject
         c.arc(this.xStart, this.yStart, this.radius, this.startAngle, this.endAngle, this.counterClockWise);
 
         if(this.hasOutline){
-            c.strokeStyle = this.outlinecolor;
+            c.strokeStyle = this.outlineColor;
             c.stroke();
         }
         if(this.hasFill){
