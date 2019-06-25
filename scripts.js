@@ -38,6 +38,7 @@ var DrawCanvas = /** @class */ (function () {
         this.pencilEventListener();
         this.cirlceEventListener();
         this.squireEventListener();
+        this.buttonsEventListeners();
     }
     DrawCanvas.prototype.drawToolbox = function () {
         this.toolbox = new Toolbox;
@@ -67,7 +68,7 @@ var DrawCanvas = /** @class */ (function () {
     DrawCanvas.prototype.mouseMovementEventListener = function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
-            console.log('Tool in Toolbox object ' + _this.toolbox.getSelectedTool);
+            console.log('Tool in Canvas object ' + _this.toolbox.getSelectedTool);
             _this.mouse.x = event.x - _this.toolbox.toolbox.offsetWidth;
             _this.mouse.y = event.y;
         });
@@ -96,7 +97,6 @@ var DrawCanvas = /** @class */ (function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
             if (_this.toolbox.selectedTool === 1 && event.target === _this.canvas) {
-                console.log('test');
                 if (!_this.startOfObject) {
                     var lastObjectItem = _this.objects.length - 1;
                     _this.objects[lastObjectItem].createObject(_this.mouse.x, _this.mouse.y);
@@ -141,13 +141,23 @@ var DrawCanvas = /** @class */ (function () {
             }
         });
     };
+    DrawCanvas.prototype.buttonsEventListeners = function () {
+        var _this = this;
+        this.toolbox.downloadButton.addEventListener('click', function () {
+            var dataURL = _this.canvas.toDataURL("image/png");
+            _this.toolbox.downloadButton.href = dataURL;
+        });
+    };
     return DrawCanvas;
 }());
 var Toolbox = /** @class */ (function () {
     function Toolbox() {
-        this.tools = ['freedrawing', 'squire', 'circle'];
+        this.tools = ['pencil', 'circle', 'squire'];
         this.selectedTool = 0;
         this.toolbox = document.createElement('ul');
+        /**
+         * SETTING UP THE TOOLS
+         */
         for (var i = 0; i < this.tools.length; i++) {
             var itemLi = document.createElement('li');
             var itemInput = document.createElement('input');
@@ -164,6 +174,17 @@ var Toolbox = /** @class */ (function () {
             itemLi.appendChild(itemLabel);
             this.toolbox.appendChild(itemLi);
         }
+        /**
+          * SETTING UP BUTTONS (remove last & download button)
+          */
+        this.removeLastButton = document.createElement('button');
+        this.removeLastButton.innerHTML = 'remove last';
+        this.toolbox.appendChild(this.removeLastButton);
+        this.downloadButton = document.createElement('a');
+        this.downloadButton.setAttribute('download', 'Mijn mooie ding');
+        this.downloadButton.innerHTML = 'Download as PNG';
+        this.toolbox.appendChild(this.downloadButton);
+        // set the toolbox in the body of the programm.
         document.body.appendChild(this.toolbox);
     }
     Toolbox.prototype.change = function (item) {

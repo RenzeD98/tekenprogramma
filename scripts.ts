@@ -42,6 +42,7 @@ class DrawCanvas
         this.pencilEventListener();
         this.cirlceEventListener();
         this.squireEventListener();
+        this.buttonsEventListeners();
     }
 
     drawToolbox(){
@@ -70,7 +71,6 @@ class DrawCanvas
 
     animate(){
         requestAnimationFrame(() => {this.animate();});
-
         this.c.clearRect(0,0, innerWidth, innerHeight);
 
         for (let i = 0; i < this.objects.length; i++ ){
@@ -80,7 +80,8 @@ class DrawCanvas
 
     mouseMovementEventListener(){
         window.addEventListener('mousemove', event => {
-            console.log('Tool in Toolbox object '+this.toolbox.getSelectedTool);
+
+            console.log('Tool in Canvas object '+this.toolbox.getSelectedTool);
 
             this.mouse.x = event.x - this.toolbox.toolbox.offsetWidth;
             this.mouse.y = event.y;
@@ -108,7 +109,6 @@ class DrawCanvas
     cirlceEventListener(){
         window.addEventListener('mousemove', event => {
             if (this.toolbox.selectedTool === 1 && event.target === this.canvas) {
-                console.log('test');
                 if(!this.startOfObject){
                     let lastObjectItem = this.objects.length - 1;
                     this.objects[lastObjectItem].createObject(this.mouse.x, this.mouse.y);
@@ -153,19 +153,32 @@ class DrawCanvas
             }
         });
     }
+
+    buttonsEventListeners(){
+
+        this.toolbox.downloadButton.addEventListener('click', () => {
+            var dataURL = this.canvas.toDataURL("image/png");
+            this.toolbox.downloadButton.href = dataURL;
+        });
+    }
 }
 
 class Toolbox
 {
     toolbox:HTMLElement;
     selectedTool:number;
-    tools:string[];
+    tools:object;
+    downloadButton:HTMLElement;
+    removeLastButton:HTMLElement;
 
     constructor(){
-        this.tools = ['freedrawing', 'squire', 'circle'];
+        this.tools = ['pencil', 'circle', 'squire'];
         this.selectedTool = 0;
         this.toolbox = document.createElement('ul');
 
+        /**
+         * SETTING UP THE TOOLS
+         */
         for(let i = 0; i < this.tools.length; i++){
             let itemLi = document.createElement('li');
 
@@ -186,6 +199,20 @@ class Toolbox
             this.toolbox.appendChild(itemLi);
         }
 
+        /**
+          * SETTING UP BUTTONS (remove last & download button)
+          */
+        this.removeLastButton = document.createElement('button');
+        this.removeLastButton.innerHTML = 'remove last';
+        this.toolbox.appendChild(this.removeLastButton);
+
+        this.downloadButton = document.createElement('a');
+        this.downloadButton.setAttribute('download', 'Mijn mooie ding');
+        this.downloadButton.innerHTML = 'Download as PNG';
+        this.toolbox.appendChild(this.downloadButton);
+
+
+        // set the toolbox in the body of the programm.
         document.body.appendChild(this.toolbox);
     }
 
