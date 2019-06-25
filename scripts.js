@@ -11,94 +11,193 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-//initializing size and the context of the canvas
-var canvas = document.getElementById('canvas');
-var c = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-//TODO: Class maken van toolbar || Enums opzoeken
-//wacthing the change in a tool used
-var usedTool = 1;
-function changeTool(radio) {
-    usedTool = radio.value;
-    console.log(objects);
-}
-// Mouse event listener and object
-var mouse = {
-    x: undefined,
-    y: undefined
-};
-window.addEventListener('mousemove', function (event) {
-    mouse.x = event.x;
-    mouse.y = event.y;
-});
-//objects array
-var startOfObject = true;
-var objects = [];
-var lastObjectItem = 0;
+var tools;
+(function (tools) {
+    tools[tools["Freedraw"] = 0] = "Freedraw";
+    tools[tools["Circle"] = 1] = "Circle";
+    tools[tools["Rectangle"] = 2] = "Rectangle";
+})(tools || (tools = {}));
 // Classes -------------------------------------------------------------------------
+/**
+ * DrawCanvas
+ */
 var DrawCanvas = /** @class */ (function () {
     function DrawCanvas(width, height) {
-        this.objects = [];
         this.startOfObject = true;
-        this.lastObjectIndex = 0;
+        this.objects = [];
+        this.width = width;
+        this.height = height;
         this.mouse = {
             x: undefined,
             y: undefined
         };
-        this.width = width;
-        this.height = height;
+        this.drawToolbox();
+        this.drawCanvas();
+        this.animate();
+        this.initEventListeners();
     }
+    DrawCanvas.prototype.drawToolbox = function () {
+        this.toolbox = new Toolbox;
+    };
+    DrawCanvas.prototype.drawCanvas = function () {
+        //initializing size and the context of the canvas
+        this.canvasWrapper = document.createElement('div');
+        this.canvasWrapper.className = "canvas";
+        this.canvas = document.createElement('canvas');
+        this.c = this.canvas.getContext('2d');
+        this.canvasWrapper.style.position = "absolute";
+        this.canvasWrapper.style.left = this.toolbox.toolbox.offsetWidth + "px";
+        this.canvasWrapper.style.cursor = "pointer";
+        this.canvas.width = this.width - this.toolbox.toolbox.offsetWidth;
+        this.canvas.height = this.height;
+        this.canvasWrapper.appendChild(this.canvas);
+        document.body.appendChild(this.canvasWrapper);
+    };
+    DrawCanvas.prototype.animate = function () {
+        var _this = this;
+        requestAnimationFrame(function () { _this.animate(); });
+        this.c.clearRect(0, 0, innerWidth, innerHeight);
+        for (var i = 0; i < this.objects.length; i++) {
+            this.objects[i].drawObject();
+        }
+    };
+    DrawCanvas.prototype.initEventListeners = function () {
+        var _this = this;
+        //MOUSEMOVE
+        window.addEventListener('mousemove', function (event) {
+            //mouse movement
+            _this.mouse.x = event.x - _this.toolbox.toolbox.offsetWidth;
+            _this.mouse.y = event.y;
+            //draw rectangle
+            if (_this.toolbox.selectedTool == 2 && event.toElement === _this.canvas) {
+                if (!_this.startOfObject) {
+                    var lastObjectItem = _this.objects.length - 1;
+                    _this.objects[lastObjectItem].createObject(_this.mouse.x, _this.mouse.y);
+                }
+            }
+            //draw circle
+            console.log(_this.toolbox.selectedTool);
+            if (_this.toolbox.selectedTool === 1 && event.toElement === _this.canvas) {
+                console.log('test');
+                if (!_this.startOfObject) {
+                    var lastObjectItem = _this.objects.length - 1;
+                    _this.objects[lastObjectItem].createObject(_this.mouse.x, _this.mouse.y);
+                }
+            }
+            //Freedraw
+            if (_this.toolbox.selectedTool === 0 && event.toElement === _this.canvas) {
+                if (event.buttons === 1) {
+                    if (_this.startOfObject) {
+                        _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, 'black', 5));
+                        _this.startOfObject = false;
+                    }
+                    else {
+                        var lastObjectItem = _this.objects.length - 1;
+                        _this.objects[lastObjectItem].createAnchor(_this.mouse.x, _this.mouse.y);
+                    }
+                }
+                else {
+                    _this.startOfObject = true;
+                }
+            }
+        });
+        //MOUSECLICK
+        window.addEventListener('mousedown', function (event) {
+            //Rectangle: start and stop
+            if (_this.toolbox.selectedTool == 2 && event.toElement === _this.canvas) {
+                if (_this.startOfObject) {
+                    _this.objects.push(new Rect(_this.c, _this.mouse.x, _this.mouse.y, false, 'green', 5, true, 'black'));
+                    _this.startOfObject = false;
+                }
+                else {
+                    var lastObjectItem = _this.objects.length - 1;
+                    _this.objects[lastObjectItem].createObject(_this.mouse.x, _this.mouse.y);
+                    _this.startOfObject = true;
+                }
+            }
+            //Circle: start and stop
+            if (_this.toolbox.selectedTool == 1 && event.toElement === _this.canvas) {
+                if (_this.startOfObject) {
+                    _this.objects.push(new Arc(_this.c, _this.mouse.x, _this.mouse.y, false, 'green', 3, true, 'grey'));
+                    _this.startOfObject = false;
+                }
+                else {
+                    var lastObjectItem = _this.objects.length - 1;
+                    _this.objects[lastObjectItem].createObject(_this.mouse.x, _this.mouse.y);
+                    _this.startOfObject = true;
+                }
+            }
+        });
+    };
     return DrawCanvas;
+}());
+var Toolbox = /** @class */ (function () {
+    function Toolbox() {
+        this.tools = ['freedrawing', 'squire', 'circle'];
+        this.selectedTool = 0;
+        this.toolbox = document.createElement('ul');
+        for (var i = 0; i < this.tools.length; i++) {
+            var itemLi = document.createElement('li');
+            var itemInput = document.createElement('input');
+            itemInput.setAttribute('type', 'radio');
+            itemInput.setAttribute('name', 'tool');
+            itemInput.setAttribute('value', i.toString());
+            itemInput.setAttribute('id', this.tools[i]);
+            this.selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
+            itemInput.addEventListener('change', this.change);
+            var itemLabel = document.createElement('label');
+            itemLabel.setAttribute('for', this.tools[i]);
+            itemLabel.innerHTML = this.tools[i];
+            itemLi.appendChild(itemInput);
+            itemLi.appendChild(itemLabel);
+            this.toolbox.appendChild(itemLi);
+        }
+        document.body.appendChild(this.toolbox);
+    }
+    Toolbox.prototype.change = function (item) {
+        this.selectedTool = item.target.value;
+        console.log(this.selectedTool);
+    };
+    return Toolbox;
 }());
 /**
  * DrawObject
  */
 var DrawObject = /** @class */ (function () {
-    function DrawObject(xStart, yStart) {
+    function DrawObject(canvasContext, xStart, yStart, lineColor, lineWidth) {
+        this.c = canvasContext;
         this.xStart = xStart;
         this.yStart = yStart;
+        this.lineColor = lineColor;
+        this.lineWidth = lineWidth;
     }
+    DrawObject.prototype.drawObject = function () { };
     return DrawObject;
 }());
-/**
- * ShapedObject
- */
-var ShapedObject = /** @class */ (function (_super) {
-    __extends(ShapedObject, _super);
-    function ShapedObject(x, y, outlineColor, outlineWidth) {
-        var _this = _super.call(this, x, y) || this;
-        _this.outlineColor = outlineColor;
-        _this.outlineWidth = outlineWidth;
-        return _this;
-    }
-    return ShapedObject;
-}(DrawObject));
 /**
  * Line
  */
 var Line = /** @class */ (function (_super) {
     __extends(Line, _super);
-    function Line(x, y, color) {
-        var _this = _super.call(this, x, y) || this;
+    function Line(c, x, y, lineColor, lineWidth) {
+        var _this = _super.call(this, c, x, y, lineColor, lineWidth) || this;
         _this.anchorPoints = [];
-        _this.color = color;
-        _this.lineWidth = 5;
         return _this;
     }
     Line.prototype.createAnchor = function (x, y) {
-        c.lineWidth = this.lineWidth;
+        this.c.lineWidth = this.lineWidth;
         this.anchorPoints.push([x, y]);
         this.drawObject(); //misschien overbodig
     };
     Line.prototype.drawObject = function () {
-        c.beginPath();
-        c.moveTo(this.xStart, this.yStart);
-        c.strokeStyle = this.color;
+        this.c.beginPath();
+        this.c.moveTo(this.xStart, this.yStart);
+        this.c.strokeStyle = this.lineColor;
         for (var i = 0; i < this.anchorPoints.length; i++) {
-            c.lineTo(this.anchorPoints[i][0], this.anchorPoints[i][1]);
+            this.c.lineTo(this.anchorPoints[i][0], this.anchorPoints[i][1]);
         }
-        c.stroke();
+        this.c.stroke();
+        _super.prototype.drawObject.call(this);
     };
     return Line;
 }(DrawObject));
@@ -107,20 +206,22 @@ var Line = /** @class */ (function (_super) {
  */
 var Rect = /** @class */ (function (_super) {
     __extends(Rect, _super);
-    function Rect(x, y, color) {
-        var _this = _super.call(this, x, y) || this;
-        _this.color = color;
+    function Rect(c, x, y, hasLine, lineColor, lineWidth, hasFill, fillColor) {
+        var _this = _super.call(this, c, x, y, lineColor, lineWidth) || this;
+        _this.hasline = hasLine;
+        _this.innerColor = fillColor;
         return _this;
     }
-    Rect.prototype.createRect = function (x, y) {
-        c.fillStyle = this.color;
+    Rect.prototype.createObject = function (x, y) {
+        this.c.fillStyle = this.innerColor;
         this.width = x - this.xStart;
         this.height = y - this.yStart;
-        this.drawObject(); //mischien niet nodig omdat de animate() dit al doet
+        this.drawObject();
     };
     Rect.prototype.drawObject = function () {
-        c.fillStyle = this.color;
-        c.fillRect(this.xStart, this.yStart, this.width, this.height);
+        this.c.fillStyle = this.innerColor;
+        this.c.fillRect(this.xStart, this.yStart, this.width, this.height);
+        _super.prototype.drawObject.call(this);
     };
     return Rect;
 }(DrawObject));
@@ -129,119 +230,36 @@ var Rect = /** @class */ (function (_super) {
  */
 var Arc = /** @class */ (function (_super) {
     __extends(Arc, _super);
-    function Arc(x, y) {
-        var _this = _super.call(this, x, y) || this;
-        _this.fillColor = "blue";
-        _this.outlineColor = "black";
+    function Arc(c, x, y, line, lineColor, lineWidth, hasFill, fillColor) {
+        var _this = _super.call(this, c, x, y, lineColor, lineWidth) || this;
+        _this.fillColor = fillColor;
+        _this.hasOutline = line;
+        _this.hasFill = hasFill;
         _this.startAngle = 0;
         _this.endAngle = Math.PI * 2;
         _this.counterClockWise = false;
-        _this.lineWidth = 5;
         return _this;
     }
-    Arc.prototype.createArc = function (x, y, outline, fill) {
-        this.hasOutline = outline;
-        this.hasFill = fill;
+    Arc.prototype.createObject = function (x, y) {
         this.radius = Math.sqrt(Math.pow((x - this.xStart), 2) + Math.pow((y - this.yStart), 2));
-        this.drawObject(); //mischien niet nodig omdat de animate() dit al doet
+        this.drawObject();
     };
     Arc.prototype.drawObject = function () {
-        c.beginPath();
-        c.lineWidth = this.lineWidth;
-        c.arc(this.xStart, this.yStart, this.radius, this.startAngle, this.endAngle, this.counterClockWise);
+        this.c.beginPath();
+        this.c.lineWidth = this.lineWidth;
+        this.c.arc(this.xStart, this.yStart, this.radius, this.startAngle, this.endAngle, this.counterClockWise);
         if (this.hasOutline) {
-            c.strokeStyle = this.outlineColor;
-            c.stroke();
+            this.c.strokeStyle = this.lineColor;
+            this.c.stroke();
         }
         if (this.hasFill) {
-            c.fillStyle = this.fillColor;
-            c.fill();
+            this.c.fillStyle = this.fillColor;
+            this.c.fill();
         }
+        _super.prototype.drawObject.call(this);
     };
     return Arc;
 }(DrawObject));
-// animate canvas for animation while making a square, not yet in use
-function animate() {
-    requestAnimationFrame(animate);
-    c.clearRect(0, 0, innerWidth, innerHeight);
-    for (var i = 0; i < objects.length; i++) {
-        objects[i].drawObject();
-    }
-}
-animate();
-// Event Listeners ----------------------------------------------------------------------------
-/**
- * Free draw
- * - While holding mouse down
- */
-window.addEventListener('mousemove', function (event) {
-    if (usedTool == 1 && event.toElement === canvas) {
-        if (event.buttons === 1) {
-            if (startOfObject) {
-                objects.push(new Line(mouse.x, mouse.y, 'black'));
-                startOfObject = false;
-            }
-            else {
-                lastObjectItem = objects.length - 1;
-                objects[lastObjectItem].createAnchor(mouse.x, mouse.y);
-            }
-        }
-        else {
-            startOfObject = true;
-        }
-    }
-});
-/**
- * Draw circle
- * - With 2 mouse clicks
- */
-window.addEventListener('mousedown', function (event) {
-    if (usedTool == 2 && event.toElement === canvas) {
-        if (startOfObject) {
-            objects.push(new Arc(mouse.x, mouse.y));
-            startOfObject = false;
-        }
-        else {
-            lastObjectItem = objects.length - 1;
-            objects[lastObjectItem].createArc(mouse.x, mouse.y, false, true);
-            startOfObject = true;
-        }
-    }
-});
-window.addEventListener('mousemove', function (event) {
-    if (usedTool == 2 && event.toElement === canvas) {
-        if (!startOfObject) {
-            lastObjectItem = objects.length - 1;
-            objects[lastObjectItem].createArc(mouse.x, mouse.y, false, true);
-        }
-    }
-});
-/**
- * Draw rectangle
- * - With 2 mouse clicks
- */
-window.addEventListener('mousedown', function (event) {
-    if (usedTool == 3 && event.toElement === canvas) {
-        if (startOfObject) {
-            objects.push(new Rect(mouse.x, mouse.y, 'green'));
-            startOfObject = false;
-        }
-        else {
-            lastObjectItem = objects.length - 1;
-            objects[lastObjectItem].createRect(mouse.x, mouse.y);
-            startOfObject = true;
-        }
-    }
-});
-window.addEventListener('mousemove', function (event) {
-    if (usedTool == 3 && event.toElement === canvas) {
-        if (!startOfObject) {
-            lastObjectItem = objects.length - 1;
-            objects[lastObjectItem].createRect(mouse.x, mouse.y);
-        }
-    }
-});
-function removeLast() {
-    objects.pop();
-}
+//create Canvas
+new DrawCanvas(window.innerWidth, window.innerHeight);
 //# sourceMappingURL=scripts.js.map
