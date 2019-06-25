@@ -38,7 +38,10 @@ class DrawCanvas
         this.drawToolbox();
         this.drawCanvas();
         this.animate();
-        this.initEventListeners();
+        this.mouseMovementEventListener();
+        this.pencilEventListener();
+        this.cirlceEventListener();
+        this.squireEventListener();
     }
 
     drawToolbox(){
@@ -75,36 +78,18 @@ class DrawCanvas
         }
     }
 
-    initEventListeners(){
-        //MOUSEMOVE
+    mouseMovementEventListener(){
         window.addEventListener('mousemove', event => {
+            console.log('Tool in Toolbox object '+this.toolbox.getSelectedTool);
 
-            //mouse movement
             this.mouse.x = event.x - this.toolbox.toolbox.offsetWidth;
             this.mouse.y = event.y;
+        });
+    }
 
-            //draw rectangle
-            if (this.toolbox.selectedTool == 2 && event.toElement === this.canvas) {
-                if(!this.startOfObject){
-                    let lastObjectItem = this.objects.length - 1;
-                    this.objects[lastObjectItem].createObject(this.mouse.x, this.mouse.y);
-                }
-            }
-
-            //draw circle
-            console.log(this.toolbox.getSelectedTool);
-
-
-            if (this.toolbox.selectedTool === 1 && event.toElement === this.canvas) {
-                console.log('test');
-                if(!this.startOfObject){
-                    let lastObjectItem = this.objects.length - 1;
-                    this.objects[lastObjectItem].createObject(this.mouse.x, this.mouse.y);
-                }
-            }
-
-            //Freedraw
-            if (this.toolbox.selectedTool === 0 && event.toElement === this.canvas) {
+    pencilEventListener(){
+        window.addEventListener('mousemove', event => {
+            if (this.toolbox.selectedTool === 0 && event.target === this.canvas) {
                 if (event.buttons === 1) {
                     if (this.startOfObject) {
                         this.objects.push(new Line(this.c, this.mouse.x, this.mouse.y, 'black', 5));
@@ -118,14 +103,23 @@ class DrawCanvas
                 }
             }
         });
+    }
 
-        //MOUSECLICK
+    cirlceEventListener(){
+        window.addEventListener('mousemove', event => {
+            if (this.toolbox.selectedTool === 1 && event.target === this.canvas) {
+                console.log('test');
+                if(!this.startOfObject){
+                    let lastObjectItem = this.objects.length - 1;
+                    this.objects[lastObjectItem].createObject(this.mouse.x, this.mouse.y);
+                }
+            }
+        });
+
         window.addEventListener('mousedown', event => {
-
-            //Rectangle: start and stop
-            if(this.toolbox.selectedTool == 2 && event.toElement === this.canvas){
+            if(this.toolbox.selectedTool == 1 && event.target === this.canvas){
                 if(this.startOfObject){
-                    this.objects.push(new Rect(this.c, this.mouse.x, this.mouse.y, false,  'green', 5, true, 'black'));
+                    this.objects.push(new Arc(this.c, this.mouse.x, this.mouse.y, false, 'green', 3, true, 'grey'));
                     this.startOfObject = false;
                 } else {
                     let lastObjectItem = this.objects.length - 1;
@@ -133,11 +127,23 @@ class DrawCanvas
                     this.startOfObject = true;
                 }
             }
+        });
+    }
 
-            //Circle: start and stop
-            if(this.toolbox.selectedTool == 1 && event.toElement === this.canvas){
+    squireEventListener(){
+        window.addEventListener('mousemove', event => {
+            if (this.toolbox.selectedTool == 2 && event.target === this.canvas) {
+                if(!this.startOfObject){
+                    let lastObjectItem = this.objects.length - 1;
+                    this.objects[lastObjectItem].createObject(this.mouse.x, this.mouse.y);
+                }
+            }
+        });
+
+        window.addEventListener('mousedown', event => {
+            if(this.toolbox.selectedTool == 2 && event.target === this.canvas){
                 if(this.startOfObject){
-                    this.objects.push(new Arc(this.c, this.mouse.x, this.mouse.y, false, 'green', 3, true, 'grey'));
+                    this.objects.push(new Rect(this.c, this.mouse.x, this.mouse.y, false,  'green', 5, true, 'black'));
                     this.startOfObject = false;
                 } else {
                     let lastObjectItem = this.objects.length - 1;
@@ -185,10 +191,10 @@ class Toolbox
 
     change(item){
         this.selectedTool = item.target.value;
-        console.log(this.selectedTool);
+        console.log('Tool in Toolbox object ' + this.selectedTool);
     }
 
-    get getSelectedTool():number {
+    get getSelectedTool() {
         return this.selectedTool;
     }
 }
