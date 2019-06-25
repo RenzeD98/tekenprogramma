@@ -76,7 +76,7 @@ var DrawCanvas = /** @class */ (function () {
                 }
             }
             //draw circle
-            console.log(_this.toolbox.selectedTool);
+            console.log(_this.toolbox.getSelectedTool);
             if (_this.toolbox.selectedTool === 1 && event.toElement === _this.canvas) {
                 console.log('test');
                 if (!_this.startOfObject) {
@@ -158,6 +158,13 @@ var Toolbox = /** @class */ (function () {
         this.selectedTool = item.target.value;
         console.log(this.selectedTool);
     };
+    Object.defineProperty(Toolbox.prototype, "getSelectedTool", {
+        get: function () {
+            return this.selectedTool;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return Toolbox;
 }());
 /**

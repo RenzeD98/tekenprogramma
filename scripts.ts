@@ -92,7 +92,9 @@ class DrawCanvas
             }
 
             //draw circle
-            console.log(this.toolbox.selectedTool);
+            console.log(this.toolbox.getSelectedTool);
+
+
             if (this.toolbox.selectedTool === 1 && event.toElement === this.canvas) {
                 console.log('test');
                 if(!this.startOfObject){
@@ -184,6 +186,10 @@ class Toolbox
     change(item){
         this.selectedTool = item.target.value;
         console.log(this.selectedTool);
+    }
+
+    get getSelectedTool():number {
+        return this.selectedTool;
     }
 }
 
