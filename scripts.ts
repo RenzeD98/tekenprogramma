@@ -17,7 +17,6 @@ interface IMousePosition {
  */
 class DrawCanvas
 {
-    canvasWrapper:HTMLElement;
     canvas:HTMLCanvasElement;
     c:any;
     width:number;
@@ -51,21 +50,17 @@ class DrawCanvas
 
     drawCanvas(){
         //initializing size and the context of the canvas
-        this.canvasWrapper = document.createElement('div');
-        this.canvasWrapper.className = "canvas";
-
         this.canvas = <HTMLCanvasElement> document.createElement('canvas');
         this.c = this.canvas.getContext('2d');
-
-        this.canvasWrapper.style.position = "absolute";
-        this.canvasWrapper.style.left = this.toolbox.toolbox.offsetWidth+"px";
-        this.canvasWrapper.style.cursor = "pointer";
-        this.canvas.width = this.width - this.toolbox.toolbox.offsetWidth;
+        this.canvas.width = this.width;
         this.canvas.height = this.height;
 
+        let canvasContainer = document.getElementById("canvasContainer");
+        canvasContainer.appendChild(this.canvas);
 
-        this.canvasWrapper.appendChild(this.canvas);
-        document.body.appendChild(this.canvasWrapper);
+        let toolBar = document.getElementById("toolBar");
+        toolBar.style.height = this.height+ 22 +"px";
+
 
     }
 
@@ -81,10 +76,10 @@ class DrawCanvas
     mouseMovementEventListener(){
         window.addEventListener('mousemove', event => {
 
-            console.log('Tool in Canvas object '+this.toolbox.getSelectedTool);
+            // console.log('Tool in Canvas object '+this.toolbox.getSelectedTool);
 
-            this.mouse.x = event.x - this.toolbox.toolbox.offsetWidth;
-            this.mouse.y = event.y;
+            this.mouse.x = event.offsetX;
+            this.mouse.y = event.offsetY;
         });
     }
 
@@ -143,6 +138,7 @@ class DrawCanvas
         window.addEventListener('mousedown', event => {
             if(this.toolbox.selectedTool == 2 && event.target === this.canvas){
                 if(this.startOfObject){
+                    console.log(event);
                     this.objects.push(new Rect(this.c, this.mouse.x, this.mouse.y, false,  'green', 5, true, 'black'));
                     this.startOfObject = false;
                 } else {
@@ -167,7 +163,7 @@ class Toolbox
 {
     toolbox:HTMLElement;
     selectedTool:number;
-    tools:object;
+    tools:string[];
     downloadButton:HTMLElement;
     removeLastButton:HTMLElement;
 
@@ -200,12 +196,8 @@ class Toolbox
         }
 
         /**
-          * SETTING UP BUTTONS (remove last & download button)
+          * SETTING UP BUTTONS (download button)
           */
-        this.removeLastButton = document.createElement('button');
-        this.removeLastButton.innerHTML = 'remove last';
-        this.toolbox.appendChild(this.removeLastButton);
-
         this.downloadButton = document.createElement('a');
         this.downloadButton.setAttribute('download', 'Mijn mooie ding');
         this.downloadButton.innerHTML = 'Download as PNG';
@@ -366,4 +358,5 @@ class Arc extends DrawObject
 
 
 //create Canvas
-new DrawCanvas(window.innerWidth, window.innerHeight);
+// new DrawCanvas(window.innerWidth, window.innerHeight);
+new DrawCanvas(1000, 550);

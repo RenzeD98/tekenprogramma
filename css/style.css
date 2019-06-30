@@ -1,0 +1,194 @@
+@font-face {
+    font-family: "pixel-bold";
+    src: url("../fonts/pixe_ab.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "pixel-norm";
+    src: url("../fonts/pixe_arg.ttf") format("truetype");
+}
+
+body{
+    margin: 0;
+    padding: 0;
+    /*overflow: hidden;*/
+    font-family: pixel-norm, Arial;
+}
+
+.paint-wrapper {
+    width: 100%;
+    /*height: 100vh;*/
+    background-color: #BFBFBF;
+    box-shadow: inset #E4DCE9 4px 4px 2px 0, inset #504f4f -2px -2px 2px 0;
+    box-sizing: border-box;
+    padding: 6px;
+}
+
+/** ------------------------------
+ * TITLE-BAR
+ */
+.title-bar {
+    font-family: pixel-bold, pixel-norm, Arial;
+    width: 100%;
+    height: 28px;
+    background-color: #020084;
+    padding: 2px 4px;
+    box-sizing: border-box;
+}
+
+.title-bar img{
+    width: 24px;
+    height: 24px;
+    float: left;
+}
+
+.title-bar .paint-title {
+    float: left;
+    color: #fff;
+    font-size: 11px;
+    margin: 4px 0 0 7px;
+}
+
+.title-bar .window-icon {
+    width: 20px;
+    height: 20px;
+    margin: 2px 0 0 4px;
+    float: right;
+    background-color: #BFBFBF;
+    text-align: center;
+    font-size: 12px ;
+    box-shadow: inset #E4DCE9 2px 2px 1px 0, inset #3c3941 -1px -1px 0 0;
+}
+
+
+/** ------------------------------
+ * OPTION-BAR
+ */
+.option-bar {
+    height: 30px;
+    width: 100%;
+    font-size: 12px;
+    padding: 5px 15px;
+    box-sizing: border-box;
+}
+
+.option-bar .word {
+    margin-right: 7px;
+}
+
+.option-bar .word .first-letter {
+    text-decoration: underline;
+}
+
+/** ------------------------------
+ * TOOL-BAR
+ */
+.tool-bar {
+    float: left;
+    width: 80px;
+    /*height: 100%;*/
+    height: 100%;
+    box-shadow: #69656f 0 -1px 0 0, inset #E4DCE9 0 1px 0 0, #E4DCE9 0 1px 0 0, inset #69656f 0 -1px 0 0;
+    padding-top: 1px;
+}
+
+.tool-bar .tool-bar-ul{
+    margin: 0;
+    padding: 0 0 0 10px;
+    background-color: green;
+}
+
+.tool-bar .tool-bar-li{
+    list-style: none;
+    float: left;
+    width: 34px;
+    height: 34px;
+    box-shadow: inset #E4DCE9 1px 1px 0 0, inset #3c3941 -1px -1px 0 0;
+    background-size: 34px;
+}
+
+.tool-bar .tool-bar-li:nth-child(odd){border-bottom: 1px solid #3c3941; border-right: 1px solid #3c3941;}
+.tool-bar .tool-bar-li:nth-child(even){border-bottom: 1px solid #3c3941;}
+.tool-bar .tool-bar-li:nth-last-child(1){border-bottom: none;}
+.tool-bar .tool-bar-li:nth-last-child(2){border-bottom: none;}
+
+
+/** ------------------------------
+ * CANVAS
+ */
+.canvas-container {
+    float: left;
+    width: calc(100% - 80px);
+    height: 100%;
+    background-color: #7F7F7F;
+    box-shadow: inset #3c3941 2px 2px 2px 0, inset #E4DCE9 -2px -2px 2px 0;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+canvas {
+    background-color: #fff;
+    cursor: pointer;
+}
+
+/** ------------------------------
+ * COLORBAR
+ */
+.color-bar {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 50px;
+    background: #BFBFBF;
+    padding: 20px 0;
+}
+
+.color-bar .color-preview {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    float: left;
+
+    background-image: linear-gradient(45deg, #fff 25%, transparent 25%), linear-gradient(-45deg, #fff 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #fff 75%), linear-gradient(-45deg, transparent 75%, #fff 75%);
+    background-size: 4px 4px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    box-shadow: inset #E4DCE9 -1px -1px 1px 0, inset #3c3941 1px 1px 0 0;
+    border: 1px #555555 solid;
+    box-sizing: border-box;
+}
+
+.color-bar .color-preview-1 {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: black;
+    z-index: 2;
+
+}
+
+.color-bar .color-preview-2 {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    background-color: #fff;
+    z-index: 1;
+}
+
+.color-bar .color-picker {
+    width: 365px;
+    height: 50px;
+    float: left;
+    margin: 0;
+    padding: 1px 0 0 4px;
+    list-style: none;
+}
+
+.color-bar .color{
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    box-shadow: inset #E4DCE9 -1px -1px 1px 0, inset #3c3941 1px 1px 0 0;
+    margin: -1px -2px;
+    border: 1px #555555 solid;
+    box-sizing: border-box;
+}

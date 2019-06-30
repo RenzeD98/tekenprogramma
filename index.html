@@ -3,14 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <title>Tekenprogramma</title>
-    <style>
-        body{margin: 0; padding: 0; overflow: hidden;}
-        canvas {background-color: #fff;}
-        ul{height: 100vh;margin: 0; padding: 0 0 0 10px; background-color: green; position: absolute;}
-        li{list-style: none}
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div class="paint-wrapper">
+        <div class="title-bar">
+            <img src="https://i.ya-webdesign.com/images/mspaint-transparent-windows-8.png" alt="Paint Icon">
+            <span class="paint-title">titelloos - Verf</span>
+            <div class="window-icon">x</div>
+            <div class="window-icon">[]</div>
+            <div class="window-icon">_</div>
+        </div>
+        <div class="option-bar">
+            <span class="word"><span class="first-letter">B</span>estand</span>
+            <span class="word"><span class="first-letter">A</span>anpassen</span>
+            <span class="word"><span class="first-letter">U</span>itzicht</span>
+            <span class="word"><span class="first-letter">A</span>fbeelding</span>
+            <span class="word"><span class="first-letter">O</span>pties</span>
+            <span class="word"><span class="first-letter">H</span>elp</span>
+        </div>
+        <div class="tool-canvas-wrapper">
+            <div class="tool-bar" id="toolBar">
+                <ul class="tool-bar-ul">
+                    <li class="tool-bar-li" style="background-image: url('icons/1.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/2.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/3.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/4.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/5.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/6.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/7.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/8.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/9.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/10.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/11.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/12.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/13.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/14.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/15.png')"> </li>
+                    <li class="tool-bar-li" style="background-image: url('icons/16.png')"> </li>
+                </ul>
+            </div>
+            <div id="canvasContainer" class="canvas-container">
+
+            </div>
+        </div>
+        <div class="color-bar">
+            <div class="color-preview">
+                <div class="color-preview-1 color"></div>
+                <div class="color-preview-2 color"></div>
+            </div>
+            <ul class="color-picker">
+                <li class="color" style="background-color: #000000"></li>
+                <li class="color" style="background-color: #7C7E7C"></li>
+                <li class="color" style="background-color: #7C0204"></li>
+                <li class="color" style="background-color: #7C7E04"></li>
+                <li class="color" style="background-color: #047E04"></li>
+                <li class="color" style="background-color: #047E7C"></li>
+                <li class="color" style="background-color: #04027C"></li>
+                <li class="color" style="background-color: #7C027C"></li>
+                <li class="color" style="background-color: #7C7E3C"></li>
+                <li class="color" style="background-color: #043E3C"></li>
+                <li class="color" style="background-color: #047EFC"></li>
+                <li class="color" style="background-color: #043E7C"></li>
+                <li class="color" style="background-color: #3C02FC"></li>
+                <li class="color" style="background-color: #7C3E04"></li>
+                <!-- De helft-->
+                <li class="color" style="background-color: #ffffff"></li>
+                <li class="color" style="background-color: #BCBEBC"></li>
+                <li class="color" style="background-color: #FC0204"></li>
+                <li class="color" style="background-color: #FCFE04"></li>
+                <li class="color" style="background-color: #04FE04"></li>
+                <li class="color" style="background-color: #181818"></li>
+                <li class="color" style="background-color: #0402FC"></li>
+                <li class="color" style="background-color: #FC02FC"></li>
+                <li class="color" style="background-color: #FCFE7C"></li>
+                <li class="color" style="background-color: #04FE7C"></li>
+                <li class="color" style="background-color: #7CFEFC"></li>
+                <li class="color" style="background-color: #7C7EFC"></li>
+                <li class="color" style="background-color: #FC027C"></li>
+                <li class="color" style="background-color: #FC7E3C"></li>
+            </ul>
+
+        </div>
+    </div>
 
 <script src="scripts.js"></script>
 </body>

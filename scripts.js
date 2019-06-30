@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -45,17 +45,14 @@ var DrawCanvas = /** @class */ (function () {
     };
     DrawCanvas.prototype.drawCanvas = function () {
         //initializing size and the context of the canvas
-        this.canvasWrapper = document.createElement('div');
-        this.canvasWrapper.className = "canvas";
         this.canvas = document.createElement('canvas');
         this.c = this.canvas.getContext('2d');
-        this.canvasWrapper.style.position = "absolute";
-        this.canvasWrapper.style.left = this.toolbox.toolbox.offsetWidth + "px";
-        this.canvasWrapper.style.cursor = "pointer";
-        this.canvas.width = this.width - this.toolbox.toolbox.offsetWidth;
+        this.canvas.width = this.width;
         this.canvas.height = this.height;
-        this.canvasWrapper.appendChild(this.canvas);
-        document.body.appendChild(this.canvasWrapper);
+        var canvasContainer = document.getElementById("canvasContainer");
+        canvasContainer.appendChild(this.canvas);
+        var toolBar = document.getElementById("toolBar");
+        toolBar.style.height = this.height + 22 + "px";
     };
     DrawCanvas.prototype.animate = function () {
         var _this = this;
@@ -68,9 +65,9 @@ var DrawCanvas = /** @class */ (function () {
     DrawCanvas.prototype.mouseMovementEventListener = function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
-            console.log('Tool in Canvas object ' + _this.toolbox.getSelectedTool);
-            _this.mouse.x = event.x - _this.toolbox.toolbox.offsetWidth;
-            _this.mouse.y = event.y;
+            // console.log('Tool in Canvas object '+this.toolbox.getSelectedTool);
+            _this.mouse.x = event.offsetX;
+            _this.mouse.y = event.offsetY;
         });
     };
     DrawCanvas.prototype.pencilEventListener = function () {
@@ -130,6 +127,7 @@ var DrawCanvas = /** @class */ (function () {
         window.addEventListener('mousedown', function (event) {
             if (_this.toolbox.selectedTool == 2 && event.target === _this.canvas) {
                 if (_this.startOfObject) {
+                    console.log(event);
                     _this.objects.push(new Rect(_this.c, _this.mouse.x, _this.mouse.y, false, 'green', 5, true, 'black'));
                     _this.startOfObject = false;
                 }
@@ -175,11 +173,8 @@ var Toolbox = /** @class */ (function () {
             this.toolbox.appendChild(itemLi);
         }
         /**
-          * SETTING UP BUTTONS (remove last & download button)
+          * SETTING UP BUTTONS (download button)
           */
-        this.removeLastButton = document.createElement('button');
-        this.removeLastButton.innerHTML = 'remove last';
-        this.toolbox.appendChild(this.removeLastButton);
         this.downloadButton = document.createElement('a');
         this.downloadButton.setAttribute('download', 'Mijn mooie ding');
         this.downloadButton.innerHTML = 'Download as PNG';
@@ -301,5 +296,6 @@ var Arc = /** @class */ (function (_super) {
     return Arc;
 }(DrawObject));
 //create Canvas
-new DrawCanvas(window.innerWidth, window.innerHeight);
+// new DrawCanvas(window.innerWidth, window.innerHeight);
+new DrawCanvas(1000, 550);
 //# sourceMappingURL=scripts.js.map
