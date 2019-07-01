@@ -1,8 +1,20 @@
-
 enum tools {
-    Freedraw,
-    Circle,
-    Rectangle
+    freeFormSelect,
+    select,
+    eraser,
+    bucket,
+    pipet,
+    magnifier,
+    pencil,
+    brush,
+    sprayCan,
+    text,
+    line,
+    curve,
+    rectangle,
+    polygon,
+    elipse,
+    roundedRectangle
 }
 
 interface IMousePosition {
@@ -10,9 +22,7 @@ interface IMousePosition {
     y:number
 }
 
-// Classes -------------------------------------------------------------------------
-
-/**
+/** -----------------------------------------------------------------------
  * DrawCanvas
  */
 class DrawCanvas
@@ -23,6 +33,7 @@ class DrawCanvas
     height:number;
     startOfObject:boolean = true;
     toolbox:any;
+    currentTool:number;
     objects = [];
     mouse:IMousePosition;
 
@@ -60,8 +71,6 @@ class DrawCanvas
 
         let toolBar = document.getElementById("toolBar");
         toolBar.style.height = this.height+ 22 +"px";
-
-
     }
 
     animate(){
@@ -76,7 +85,7 @@ class DrawCanvas
     mouseMovementEventListener(){
         window.addEventListener('mousemove', event => {
 
-            // console.log('Tool in Canvas object '+this.toolbox.getSelectedTool);
+            console.log('Tool in Canvas object '+this.toolbox.getSelectedTool);
 
             this.mouse.x = event.offsetX;
             this.mouse.y = event.offsetY;
@@ -150,8 +159,11 @@ class DrawCanvas
         });
     }
 
-    buttonsEventListeners(){
+    updateCurrentTool(currentTool:number){
+        console.log('The current tool used is:  '+currentTool);
+    }
 
+    buttonsEventListeners(){
         this.toolbox.downloadButton.addEventListener('click', () => {
             var dataURL = this.canvas.toDataURL("image/png");
             this.toolbox.downloadButton.href = dataURL;
@@ -159,13 +171,15 @@ class DrawCanvas
     }
 }
 
+/** -----------------------------------------------------------------------
+ *  Toolbox
+ */
 class Toolbox
 {
     toolbox:HTMLElement;
     selectedTool:number;
     tools:string[];
     downloadButton:HTMLElement;
-    removeLastButton:HTMLElement;
 
     constructor(){
         this.tools = ['pencil', 'circle', 'squire'];
@@ -184,7 +198,7 @@ class Toolbox
             itemInput.setAttribute('value', i.toString());
             itemInput.setAttribute('id', this.tools[i]);
             this.selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
-            itemInput.addEventListener('change', this.change);
+            itemInput.addEventListener('change', this.changeTool);
 
             let itemLabel = document.createElement('label');
             itemLabel.setAttribute('for', this.tools[i]);
@@ -208,7 +222,7 @@ class Toolbox
         document.body.appendChild(this.toolbox);
     }
 
-    change(item){
+    changeTool(item){
         this.selectedTool = item.target.value;
         console.log('Tool in Toolbox object ' + this.selectedTool);
     }
@@ -218,7 +232,7 @@ class Toolbox
     }
 }
 
-/**
+/** -----------------------------------------------------------------------
  * DrawObject
  */
 class DrawObject
@@ -241,7 +255,7 @@ class DrawObject
 }
 
 
-/**
+/** -----------------------------------------------------------------------
  * Line
  */
 class Line extends DrawObject
@@ -274,7 +288,7 @@ class Line extends DrawObject
     }
 }
 
-/**
+/** -----------------------------------------------------------------------
  * Rect
  */
 class Rect extends DrawObject
@@ -308,7 +322,7 @@ class Rect extends DrawObject
     }
 }
 
-/**
+/** -----------------------------------------------------------------------
  * Arc
  */
 class Arc extends DrawObject

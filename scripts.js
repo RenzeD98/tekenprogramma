@@ -13,12 +13,24 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var tools;
 (function (tools) {
-    tools[tools["Freedraw"] = 0] = "Freedraw";
-    tools[tools["Circle"] = 1] = "Circle";
-    tools[tools["Rectangle"] = 2] = "Rectangle";
+    tools[tools["freeFormSelect"] = 0] = "freeFormSelect";
+    tools[tools["select"] = 1] = "select";
+    tools[tools["eraser"] = 2] = "eraser";
+    tools[tools["bucket"] = 3] = "bucket";
+    tools[tools["pipet"] = 4] = "pipet";
+    tools[tools["magnifier"] = 5] = "magnifier";
+    tools[tools["pencil"] = 6] = "pencil";
+    tools[tools["brush"] = 7] = "brush";
+    tools[tools["sprayCan"] = 8] = "sprayCan";
+    tools[tools["text"] = 9] = "text";
+    tools[tools["line"] = 10] = "line";
+    tools[tools["curve"] = 11] = "curve";
+    tools[tools["rectangle"] = 12] = "rectangle";
+    tools[tools["polygon"] = 13] = "polygon";
+    tools[tools["elipse"] = 14] = "elipse";
+    tools[tools["roundedRectangle"] = 15] = "roundedRectangle";
 })(tools || (tools = {}));
-// Classes -------------------------------------------------------------------------
-/**
+/** -----------------------------------------------------------------------
  * DrawCanvas
  */
 var DrawCanvas = /** @class */ (function () {
@@ -65,7 +77,7 @@ var DrawCanvas = /** @class */ (function () {
     DrawCanvas.prototype.mouseMovementEventListener = function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
-            // console.log('Tool in Canvas object '+this.toolbox.getSelectedTool);
+            console.log('Tool in Canvas object ' + _this.toolbox.getSelectedTool);
             _this.mouse.x = event.offsetX;
             _this.mouse.y = event.offsetY;
         });
@@ -139,6 +151,9 @@ var DrawCanvas = /** @class */ (function () {
             }
         });
     };
+    DrawCanvas.prototype.updateCurrentTool = function (currentTool) {
+        console.log('The current tool used is:  ' + currentTool);
+    };
     DrawCanvas.prototype.buttonsEventListeners = function () {
         var _this = this;
         this.toolbox.downloadButton.addEventListener('click', function () {
@@ -148,6 +163,9 @@ var DrawCanvas = /** @class */ (function () {
     };
     return DrawCanvas;
 }());
+/** -----------------------------------------------------------------------
+ *  Toolbox
+ */
 var Toolbox = /** @class */ (function () {
     function Toolbox() {
         this.tools = ['pencil', 'circle', 'squire'];
@@ -164,7 +182,7 @@ var Toolbox = /** @class */ (function () {
             itemInput.setAttribute('value', i.toString());
             itemInput.setAttribute('id', this.tools[i]);
             this.selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
-            itemInput.addEventListener('change', this.change);
+            itemInput.addEventListener('change', this.changeTool);
             var itemLabel = document.createElement('label');
             itemLabel.setAttribute('for', this.tools[i]);
             itemLabel.innerHTML = this.tools[i];
@@ -182,7 +200,7 @@ var Toolbox = /** @class */ (function () {
         // set the toolbox in the body of the programm.
         document.body.appendChild(this.toolbox);
     }
-    Toolbox.prototype.change = function (item) {
+    Toolbox.prototype.changeTool = function (item) {
         this.selectedTool = item.target.value;
         console.log('Tool in Toolbox object ' + this.selectedTool);
     };
@@ -195,7 +213,7 @@ var Toolbox = /** @class */ (function () {
     });
     return Toolbox;
 }());
-/**
+/** -----------------------------------------------------------------------
  * DrawObject
  */
 var DrawObject = /** @class */ (function () {
@@ -209,7 +227,7 @@ var DrawObject = /** @class */ (function () {
     DrawObject.prototype.drawObject = function () { };
     return DrawObject;
 }());
-/**
+/** -----------------------------------------------------------------------
  * Line
  */
 var Line = /** @class */ (function (_super) {
@@ -236,7 +254,7 @@ var Line = /** @class */ (function (_super) {
     };
     return Line;
 }(DrawObject));
-/**
+/** -----------------------------------------------------------------------
  * Rect
  */
 var Rect = /** @class */ (function (_super) {
@@ -260,7 +278,7 @@ var Rect = /** @class */ (function (_super) {
     };
     return Rect;
 }(DrawObject));
-/**
+/** -----------------------------------------------------------------------
  * Arc
  */
 var Arc = /** @class */ (function (_super) {
