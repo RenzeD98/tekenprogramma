@@ -369,6 +369,7 @@ class DrawObject
     c:any;
     xStart:number;
     yStart:number;
+    //TODO: Fix colorchange bug when color is not changed on the first objects
     lineColor:string;
     lineWidth:number;
 
