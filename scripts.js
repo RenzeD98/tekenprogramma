@@ -66,6 +66,7 @@ var Canvas = /** @class */ (function () {
         this.animate();
         this.mouseMovementEventListener();
         this.pencilEventListener();
+        this.brushEventListener();
         this.cirlceEventListener();
         this.squareEventListener();
         this.buttonsEventListeners();
@@ -100,7 +101,28 @@ var Canvas = /** @class */ (function () {
             if (_this.currentTool == tools.pencil && event.target === _this.canvas) {
                 if (event.buttons === 1) {
                     if (_this.startOfObject) {
-                        _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, _this.currentColor, 5));
+                        _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, _this.currentColor, 3));
+                        _this.startOfObject = false;
+                    }
+                    else {
+                        var lastObjectItem = _this.objects.length - 1;
+                        _this.objects[lastObjectItem].createAnchor(_this.mouse.x, _this.mouse.y);
+                    }
+                }
+                else {
+                    _this.startOfObject = true;
+                }
+            }
+        });
+    };
+    //TODO: Deze Functie is letterlijk een clone van pencilEventListener(), dit even netjes maken
+    Canvas.prototype.brushEventListener = function () {
+        var _this = this;
+        window.addEventListener('mousemove', function (event) {
+            if (_this.currentTool == tools.brush && event.target === _this.canvas) {
+                if (event.buttons === 1) {
+                    if (_this.startOfObject) {
+                        _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, _this.currentColor, 10));
                         _this.startOfObject = false;
                     }
                     else {
@@ -186,12 +208,11 @@ var Toolbox = /** @class */ (function () {
         this.totalTools = 16;
         this._selectedTool = 6;
         this.updateTool();
-        this.toolbox = document.createElement('ul');
         this.appendToolbox();
     }
     Toolbox.prototype.appendToolbox = function () {
-        var itemUl = document.createElement('ul');
-        itemUl.className = 'tool-bar-ul';
+        this.toolbox = document.createElement('ul');
+        this.toolbox.className = 'tool-bar-ul';
         for (var i = 0; i < this.totalTools; i++) {
             var itemLi = document.createElement('li');
             var itemInput = document.createElement('input');
@@ -206,17 +227,11 @@ var Toolbox = /** @class */ (function () {
             itemIcon.setAttribute('style', 'background-image: url("icons/' + i + '.png")');
             itemLi.appendChild(itemInput);
             itemLi.appendChild(itemIcon);
-            itemUl.appendChild(itemLi);
+            this.toolbox.appendChild(itemLi);
         }
         var toolbar = document.getElementById('toolBar');
         toolbar.style.height = this.height + 22 + "px";
-        toolbar.appendChild(itemUl);
-        //download button at the bottom of the document
-        this.downloadButton = document.createElement('a');
-        this.downloadButton.setAttribute('download', 'Mijn mooie tekening');
-        this.downloadButton.innerHTML = 'Download as PNG';
-        this.toolbox.appendChild(this.downloadButton);
-        document.body.appendChild(this.toolbox);
+        toolbar.appendChild(this.toolbox);
     };
     Toolbox.prototype.updateTool = function () {
         this.delegate.toolChanged(this._selectedTool);
@@ -308,11 +323,11 @@ var Line = /** @class */ (function (_super) {
         return _this;
     }
     Line.prototype.createAnchor = function (x, y) {
-        this.c.lineWidth = this.lineWidth;
         this.anchorPoints.push([x, y]);
     };
     Line.prototype.drawObject = function () {
         this.c.beginPath();
+        this.c.lineWidth = this.lineWidth;
         this.c.moveTo(this.xStart, this.yStart);
         this.c.strokeStyle = this.lineColor;
         for (var i = 0; i < this.anchorPoints.length; i++) {

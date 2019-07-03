@@ -73,10 +73,12 @@ body{
 
 .option-bar .word {
     margin-right: 7px;
+    cursor: pointer;
 }
 
 .option-bar .word .first-letter {
     text-decoration: underline;
+    cursor: pointer;
 }
 
 /** ------------------------------

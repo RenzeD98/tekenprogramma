@@ -85,6 +85,7 @@ class Canvas
         this.animate();
         this.mouseMovementEventListener();
         this.pencilEventListener();
+        this.brushEventListener();
         this.cirlceEventListener();
         this.squareEventListener();
         this.buttonsEventListeners();
@@ -122,7 +123,26 @@ class Canvas
             if (this.currentTool == tools.pencil && event.target === this.canvas) {
                 if (event.buttons === 1) {
                     if (this.startOfObject) {
-                        this.objects.push(new Line(this.c, this.mouse.x, this.mouse.y, this.currentColor, 5));
+                        this.objects.push(new Line(this.c, this.mouse.x, this.mouse.y, this.currentColor, 3));
+                        this.startOfObject = false;
+                    } else {
+                        let lastObjectItem = this.objects.length - 1;
+                        this.objects[lastObjectItem].createAnchor(this.mouse.x, this.mouse.y);
+                    }
+                } else {
+                    this.startOfObject = true;
+                }
+            }
+        });
+    }
+
+    //TODO: Deze Functie is letterlijk een clone van pencilEventListener(), dit even netjes maken
+    brushEventListener(){
+        window.addEventListener('mousemove', event => {
+            if (this.currentTool == tools.brush && event.target === this.canvas) {
+                if (event.buttons === 1) {
+                    if (this.startOfObject) {
+                        this.objects.push(new Line(this.c, this.mouse.x, this.mouse.y, this.currentColor, 10));
                         this.startOfObject = false;
                     } else {
                         let lastObjectItem = this.objects.length - 1;
@@ -149,7 +169,10 @@ class Canvas
             if(this.currentTool == tools.elipse && event.target === this.canvas){
                 if(this.startOfObject){
                     //TODO: Deze fillColor heeft nu de value die de lineColor eigenlijks moet hebben
-                    this.objects.push(new Arc(this.c, this.mouse.x, this.mouse.y, false, 'green', 3, true, this.currentColor));
+                    this.objects.push(new Arc(
+                        this.c, this.mouse.x, this.mouse.y, false,
+                        'green', 3, true, this.currentColor)
+                    );
                     this.startOfObject = false;
                 } else {
                     let lastObjectItem = this.objects.length - 1;
@@ -174,7 +197,11 @@ class Canvas
             if(this.currentTool == tools.rectangle && event.target === this.canvas){
                 if(this.startOfObject){
                     //TODO: Deze fillColor heeft nu de value die de lineColor eigenlijks moet hebben
-                    this.objects.push(new Rect(this.c, this.mouse.x, this.mouse.y, false,  'green', 5, true, this.currentColor));
+                    this.objects.push( new Rect(
+                            this.c, this.mouse.x, this.mouse.y,
+                            false,  'green', 5,
+                            true, this.currentColor)
+                    );
                     this.startOfObject = false;
                 } else {
                     let lastObjectItem = this.objects.length - 1;
@@ -197,11 +224,9 @@ class Canvas
  */
 class Toolbox
 {
-    //TODO: Deze toolbox HTMLElement moet aangevuld worden met de UL in de constructor
     toolbox:HTMLElement;
     _selectedTool:number;
     totalTools:number;
-    downloadButton:HTMLElement;
     delegate:IToolboxObserver;
     height:number;
 
@@ -211,13 +236,12 @@ class Toolbox
         this.totalTools = 16;
         this._selectedTool = 6;
         this.updateTool();
-        this.toolbox = document.createElement('ul');
         this.appendToolbox();
     }
 
     appendToolbox() {
-        let itemUl = document.createElement('ul');
-        itemUl.className = 'tool-bar-ul';
+        this.toolbox = document.createElement('ul');
+        this.toolbox.className = 'tool-bar-ul';
 
         for(let i = 0; i < this.totalTools; i++){
             let itemLi = document.createElement('li');
@@ -235,20 +259,13 @@ class Toolbox
 
             itemLi.appendChild(itemInput);
             itemLi.appendChild(itemIcon);
-            itemUl.appendChild(itemLi);
+            this.toolbox.appendChild(itemLi);
         }
 
         let toolbar = document.getElementById('toolBar');
         toolbar.style.height = this.height + 22 + "px";
-        toolbar.appendChild(itemUl);
+        toolbar.appendChild(this.toolbox);
 
-        //download button at the bottom of the document
-        this.downloadButton = document.createElement('a');
-        this.downloadButton.setAttribute('download', 'Mijn mooie tekening');
-        this.downloadButton.innerHTML = 'Download as PNG';
-        this.toolbox.appendChild(this.downloadButton);
-
-        document.body.appendChild(this.toolbox);
     }
 
     changeTool = item => {
@@ -298,7 +315,6 @@ class Colorbox {
 
         this.colorbox1 = document.createElement('div');
         this.colorbox2 = document.createElement('div');
-
 
         this.colorbox1.className = 'color-preview-1 color';
         this.colorbox1.setAttribute('style', 'background-color: '+this._selectedColor);
@@ -380,12 +396,12 @@ class Line extends DrawObject
     }
 
     createAnchor(x:number, y:number){
-        this.c.lineWidth = this.lineWidth;
         this.anchorPoints.push([x,y]);
     }
 
     drawObject(){
         this.c.beginPath();
+        this.c.lineWidth = this.lineWidth;
         this.c.moveTo(this.xStart, this.yStart);
         this.c.strokeStyle = this.lineColor;
 
@@ -476,7 +492,6 @@ class Arc extends DrawObject
         super.drawObject();
     }
 }
-
 
 //Create Paint Programm
 new ConstructProgram(1000, 600);
