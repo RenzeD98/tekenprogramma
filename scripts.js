@@ -31,31 +31,46 @@ var tools;
     tools[tools["roundedRectangle"] = 15] = "roundedRectangle";
 })(tools || (tools = {}));
 /** -----------------------------------------------------------------------
- * DrawCanvas
+ * ConstructProgram
+ * - Superclass?
+ *
  */
-var DrawCanvas = /** @class */ (function () {
-    function DrawCanvas(width, height) {
-        this.startOfObject = true;
+var ConstructProgram = /** @class */ (function () {
+    function ConstructProgram(width, height) {
+        this.canvas = new Canvas(width, height);
+        this.toolbox = new Toolbox(this, height);
+        this.colorbox = new Colorbox(this);
+    }
+    ConstructProgram.prototype.toolChanged = function (tool) {
+        this.canvas.currentTool = tool;
+    };
+    ConstructProgram.prototype.colorChanged = function (color) {
+        this.canvas.currentColor = color;
+    };
+    return ConstructProgram;
+}());
+/** -----------------------------------------------------------------------
+ * Canvas
+ */
+var Canvas = /** @class */ (function () {
+    function Canvas(width, height) {
         this.objects = [];
+        this.startOfObject = true;
         this.width = width;
         this.height = height;
         this.mouse = {
             x: undefined,
             y: undefined
         };
-        this.drawToolbox();
         this.drawCanvas();
         this.animate();
         this.mouseMovementEventListener();
         this.pencilEventListener();
         this.cirlceEventListener();
-        this.squireEventListener();
+        this.squareEventListener();
         this.buttonsEventListeners();
     }
-    DrawCanvas.prototype.drawToolbox = function () {
-        this.toolbox = new Toolbox;
-    };
-    DrawCanvas.prototype.drawCanvas = function () {
+    Canvas.prototype.drawCanvas = function () {
         //initializing size and the context of the canvas
         this.canvas = document.createElement('canvas');
         this.c = this.canvas.getContext('2d');
@@ -63,32 +78,29 @@ var DrawCanvas = /** @class */ (function () {
         this.canvas.height = this.height;
         var canvasContainer = document.getElementById("canvasContainer");
         canvasContainer.appendChild(this.canvas);
-        var toolBar = document.getElementById("toolBar");
-        toolBar.style.height = this.height + 22 + "px";
     };
-    DrawCanvas.prototype.animate = function () {
+    Canvas.prototype.animate = function () {
         var _this = this;
         requestAnimationFrame(function () { _this.animate(); });
-        this.c.clearRect(0, 0, innerWidth, innerHeight);
+        this.c.clearRect(0, 0, this.width, this.height);
         for (var i = 0; i < this.objects.length; i++) {
             this.objects[i].drawObject();
         }
     };
-    DrawCanvas.prototype.mouseMovementEventListener = function () {
+    Canvas.prototype.mouseMovementEventListener = function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
-            console.log('Tool in Canvas object ' + _this.toolbox.getSelectedTool);
             _this.mouse.x = event.offsetX;
             _this.mouse.y = event.offsetY;
         });
     };
-    DrawCanvas.prototype.pencilEventListener = function () {
+    Canvas.prototype.pencilEventListener = function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
-            if (_this.toolbox.selectedTool === 0 && event.target === _this.canvas) {
+            if (_this.currentTool == tools.pencil && event.target === _this.canvas) {
                 if (event.buttons === 1) {
                     if (_this.startOfObject) {
-                        _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, 'black', 5));
+                        _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, _this.currentColor, 5));
                         _this.startOfObject = false;
                     }
                     else {
@@ -102,10 +114,10 @@ var DrawCanvas = /** @class */ (function () {
             }
         });
     };
-    DrawCanvas.prototype.cirlceEventListener = function () {
+    Canvas.prototype.cirlceEventListener = function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
-            if (_this.toolbox.selectedTool === 1 && event.target === _this.canvas) {
+            if (_this.currentTool == tools.elipse && event.target === _this.canvas) {
                 if (!_this.startOfObject) {
                     var lastObjectItem = _this.objects.length - 1;
                     _this.objects[lastObjectItem].createObject(_this.mouse.x, _this.mouse.y);
@@ -113,9 +125,10 @@ var DrawCanvas = /** @class */ (function () {
             }
         });
         window.addEventListener('mousedown', function (event) {
-            if (_this.toolbox.selectedTool == 1 && event.target === _this.canvas) {
+            if (_this.currentTool == tools.elipse && event.target === _this.canvas) {
                 if (_this.startOfObject) {
-                    _this.objects.push(new Arc(_this.c, _this.mouse.x, _this.mouse.y, false, 'green', 3, true, 'grey'));
+                    //TODO: Deze fillColor heeft nu de value die de lineColor eigenlijks moet hebben
+                    _this.objects.push(new Arc(_this.c, _this.mouse.x, _this.mouse.y, false, 'green', 3, true, _this.currentColor));
                     _this.startOfObject = false;
                 }
                 else {
@@ -126,10 +139,10 @@ var DrawCanvas = /** @class */ (function () {
             }
         });
     };
-    DrawCanvas.prototype.squireEventListener = function () {
+    Canvas.prototype.squareEventListener = function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
-            if (_this.toolbox.selectedTool == 2 && event.target === _this.canvas) {
+            if (_this.currentTool == tools.rectangle && event.target === _this.canvas) {
                 if (!_this.startOfObject) {
                     var lastObjectItem = _this.objects.length - 1;
                     _this.objects[lastObjectItem].createObject(_this.mouse.x, _this.mouse.y);
@@ -137,10 +150,10 @@ var DrawCanvas = /** @class */ (function () {
             }
         });
         window.addEventListener('mousedown', function (event) {
-            if (_this.toolbox.selectedTool == 2 && event.target === _this.canvas) {
+            if (_this.currentTool == tools.rectangle && event.target === _this.canvas) {
                 if (_this.startOfObject) {
-                    console.log(event);
-                    _this.objects.push(new Rect(_this.c, _this.mouse.x, _this.mouse.y, false, 'green', 5, true, 'black'));
+                    //TODO: Deze fillColor heeft nu de value die de lineColor eigenlijks moet hebben
+                    _this.objects.push(new Rect(_this.c, _this.mouse.x, _this.mouse.y, false, 'green', 5, true, _this.currentColor));
                     _this.startOfObject = false;
                 }
                 else {
@@ -151,67 +164,124 @@ var DrawCanvas = /** @class */ (function () {
             }
         });
     };
-    DrawCanvas.prototype.updateCurrentTool = function (currentTool) {
-        console.log('The current tool used is:  ' + currentTool);
+    Canvas.prototype.buttonsEventListeners = function () {
+        // this.toolbox.downloadButton.addEventListener('click', () => {
+        //     this.toolbox.downloadButton.href = this.canvas.toDataURL("image/png");
+        // });
     };
-    DrawCanvas.prototype.buttonsEventListeners = function () {
-        var _this = this;
-        this.toolbox.downloadButton.addEventListener('click', function () {
-            var dataURL = _this.canvas.toDataURL("image/png");
-            _this.toolbox.downloadButton.href = dataURL;
-        });
-    };
-    return DrawCanvas;
+    return Canvas;
 }());
 /** -----------------------------------------------------------------------
  *  Toolbox
  */
 var Toolbox = /** @class */ (function () {
-    function Toolbox() {
-        this.tools = ['pencil', 'circle', 'squire'];
-        this.selectedTool = 0;
+    function Toolbox(delegate, height) {
+        var _this = this;
+        this.changeTool = function (item) {
+            _this._selectedTool = item.target.value;
+            _this.updateTool();
+        };
+        this.delegate = delegate;
+        this.height = height;
+        this.totalTools = 16;
+        this._selectedTool = 6;
+        this.updateTool();
         this.toolbox = document.createElement('ul');
-        /**
-         * SETTING UP THE TOOLS
-         */
-        for (var i = 0; i < this.tools.length; i++) {
+        this.appendToolbox();
+    }
+    Toolbox.prototype.appendToolbox = function () {
+        var itemUl = document.createElement('ul');
+        itemUl.className = 'tool-bar-ul';
+        for (var i = 0; i < this.totalTools; i++) {
             var itemLi = document.createElement('li');
             var itemInput = document.createElement('input');
+            var itemIcon = document.createElement('div');
+            itemLi.className = 'tool-bar-li';
             itemInput.setAttribute('type', 'radio');
             itemInput.setAttribute('name', 'tool');
             itemInput.setAttribute('value', i.toString());
-            itemInput.setAttribute('id', this.tools[i]);
-            this.selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
             itemInput.addEventListener('change', this.changeTool);
-            var itemLabel = document.createElement('label');
-            itemLabel.setAttribute('for', this.tools[i]);
-            itemLabel.innerHTML = this.tools[i];
+            this._selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
+            itemIcon.className = 'tool-bar-icon';
+            itemIcon.setAttribute('style', 'background-image: url("icons/' + i + '.png")');
             itemLi.appendChild(itemInput);
-            itemLi.appendChild(itemLabel);
-            this.toolbox.appendChild(itemLi);
+            itemLi.appendChild(itemIcon);
+            itemUl.appendChild(itemLi);
         }
-        /**
-          * SETTING UP BUTTONS (download button)
-          */
+        var toolbar = document.getElementById('toolBar');
+        toolbar.style.height = this.height + 22 + "px";
+        toolbar.appendChild(itemUl);
+        //download button at the bottom of the document
         this.downloadButton = document.createElement('a');
-        this.downloadButton.setAttribute('download', 'Mijn mooie ding');
+        this.downloadButton.setAttribute('download', 'Mijn mooie tekening');
         this.downloadButton.innerHTML = 'Download as PNG';
         this.toolbox.appendChild(this.downloadButton);
-        // set the toolbox in the body of the programm.
         document.body.appendChild(this.toolbox);
-    }
-    Toolbox.prototype.changeTool = function (item) {
-        this.selectedTool = item.target.value;
-        console.log('Tool in Toolbox object ' + this.selectedTool);
     };
-    Object.defineProperty(Toolbox.prototype, "getSelectedTool", {
-        get: function () {
-            return this.selectedTool;
-        },
-        enumerable: true,
-        configurable: true
-    });
+    Toolbox.prototype.updateTool = function () {
+        this.delegate.toolChanged(this._selectedTool);
+    };
     return Toolbox;
+}());
+/** -----------------------------------------------------------------------
+ *  Colorbox
+ */
+var Colorbox = /** @class */ (function () {
+    function Colorbox(delegate) {
+        var _this = this;
+        this.changeColor = function (item) {
+            _this._selectedColor = item.target.value;
+            _this.updateColor();
+        };
+        this.delegate = delegate;
+        this._selectedColor = '#000000';
+        this.colors = [
+            '#000000', '#7C7E7C', '#7C0204', '#7C7E04', '#047E04', '#047E7C', '#04027C',
+            '#7C027C', '#7C7E3C', '#043E3C', '#047EFC', '#043E7C', '#3C02FC', '#7C3E04',
+            '#FFFFFF', '#BCBEBC', '#FC0204', '#FCFE04', '#04FE04', '#181818', '#0402FC',
+            '#FC02FC', '#FCFE7C', '#04FE7C', '#7CFEFC', '#7C7EFC', '#FC027C', '#FC7E3C'
+        ];
+        this.colorbar = document.getElementById('colorbar');
+        this.colorbox = document.createElement('div');
+        this.colorbox.className = 'color-preview';
+        this.appendColorbox();
+        this.appendColorpicker();
+    }
+    Colorbox.prototype.appendColorbox = function () {
+        this.colorbox = document.createElement('div');
+        this.colorbox.className = 'color-preview';
+        this.colorbox1 = document.createElement('div');
+        this.colorbox2 = document.createElement('div');
+        this.colorbox1.className = 'color-preview-1 color';
+        this.colorbox1.setAttribute('style', 'background-color: ' + this._selectedColor);
+        this.colorbox2.className = 'color-preview-2 color';
+        this.colorbox.appendChild(this.colorbox1);
+        this.colorbox.appendChild(this.colorbox2);
+        this.colorbar.appendChild(this.colorbox);
+    };
+    Colorbox.prototype.appendColorpicker = function () {
+        this.colorpicker = document.createElement('ul');
+        this.colorpicker.className = 'color-picker';
+        for (var i = 0; i < this.colors.length; i++) {
+            var itemLi = document.createElement('li');
+            var itemInput = document.createElement('input');
+            itemLi.className = 'color';
+            itemLi.setAttribute('style', 'background-color: ' + this.colors[i]);
+            itemInput.setAttribute('type', 'radio');
+            itemInput.setAttribute('name', 'color');
+            itemInput.setAttribute('value', this.colors[i]);
+            itemInput.addEventListener('change', this.changeColor);
+            this._selectedColor === this.colors[i] ? itemInput.setAttribute('checked', 'checked') : '';
+            itemLi.appendChild(itemInput);
+            this.colorpicker.appendChild(itemLi);
+        }
+        this.colorbar.appendChild(this.colorpicker);
+    };
+    Colorbox.prototype.updateColor = function () {
+        this.delegate.colorChanged(this._selectedColor);
+        this.colorbox1.setAttribute('style', 'background-color: ' + this._selectedColor);
+    };
+    return Colorbox;
 }());
 /** -----------------------------------------------------------------------
  * DrawObject
@@ -240,7 +310,6 @@ var Line = /** @class */ (function (_super) {
     Line.prototype.createAnchor = function (x, y) {
         this.c.lineWidth = this.lineWidth;
         this.anchorPoints.push([x, y]);
-        this.drawObject(); //misschien overbodig
     };
     Line.prototype.drawObject = function () {
         this.c.beginPath();
@@ -269,7 +338,6 @@ var Rect = /** @class */ (function (_super) {
         this.c.fillStyle = this.innerColor;
         this.width = x - this.xStart;
         this.height = y - this.yStart;
-        this.drawObject();
     };
     Rect.prototype.drawObject = function () {
         this.c.fillStyle = this.innerColor;
@@ -295,7 +363,6 @@ var Arc = /** @class */ (function (_super) {
     }
     Arc.prototype.createObject = function (x, y) {
         this.radius = Math.sqrt(Math.pow((x - this.xStart), 2) + Math.pow((y - this.yStart), 2));
-        this.drawObject();
     };
     Arc.prototype.drawObject = function () {
         this.c.beginPath();
@@ -313,7 +380,6 @@ var Arc = /** @class */ (function (_super) {
     };
     return Arc;
 }(DrawObject));
-//create Canvas
-// new DrawCanvas(window.innerWidth, window.innerHeight);
-new DrawCanvas(1000, 550);
+//Create Paint Programm
+new ConstructProgram(1000, 600);
 //# sourceMappingURL=scripts.js.map
