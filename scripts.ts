@@ -157,7 +157,6 @@ class Canvas
     }
 
     //TODO: Deze Functie is letterlijk een clone van pencilEventListener(), dit even netjes maken
-    //TODO: Gum heeft bug bij het maken van wit over een object wat niet van kleur is veranderd bij het aanmaken
     eraserEventListener(){
         window.addEventListener('mousemove', event => {
             if (this.currentTool == tools.eraser && event.target === this.canvas) {
@@ -328,6 +327,7 @@ class Colorbox {
 
         this.appendColorbox();
         this.appendColorpicker();
+        this.updateColor();
     }
 
     appendColorbox(){
@@ -390,7 +390,6 @@ class DrawObject
     c:any;
     xStart:number;
     yStart:number;
-    //TODO: Fix colorchange bug when color is not changed on the first objects
     lineColor:string;
     lineWidth:number;
 
@@ -517,4 +516,4 @@ class Arc extends DrawObject
 
 //Create Paint Programm
 // new ConstructProgram(1000, 600);
-new ConstructProgram(window.innerWidth - 200, window.innerHeight - 184);
+new ConstructProgram(window.innerWidth - 150, window.innerHeight - 184);

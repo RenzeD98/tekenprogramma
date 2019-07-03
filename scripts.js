@@ -138,7 +138,6 @@ var Canvas = /** @class */ (function () {
         });
     };
     //TODO: Deze Functie is letterlijk een clone van pencilEventListener(), dit even netjes maken
-    //TODO: Gum heeft bug bij het maken van wit over een object wat niet van kleur is veranderd bij het aanmaken
     Canvas.prototype.eraserEventListener = function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
@@ -284,6 +283,7 @@ var Colorbox = /** @class */ (function () {
         this.colorbox.className = 'color-preview';
         this.appendColorbox();
         this.appendColorpicker();
+        this.updateColor();
     }
     Colorbox.prototype.appendColorbox = function () {
         this.colorbox = document.createElement('div');
@@ -420,5 +420,5 @@ var Arc = /** @class */ (function (_super) {
 }(DrawObject));
 //Create Paint Programm
 // new ConstructProgram(1000, 600);
-new ConstructProgram(window.innerWidth - 200, window.innerHeight - 184);
+new ConstructProgram(window.innerWidth - 150, window.innerHeight - 184);
 //# sourceMappingURL=scripts.js.map
