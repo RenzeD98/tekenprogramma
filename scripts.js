@@ -67,6 +67,7 @@ var Canvas = /** @class */ (function () {
         this.mouseMovementEventListener();
         this.pencilEventListener();
         this.brushEventListener();
+        this.eraserEventListener();
         this.cirlceEventListener();
         this.squareEventListener();
         this.buttonsEventListeners();
@@ -123,6 +124,28 @@ var Canvas = /** @class */ (function () {
                 if (event.buttons === 1) {
                     if (_this.startOfObject) {
                         _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, _this.currentColor, 10));
+                        _this.startOfObject = false;
+                    }
+                    else {
+                        var lastObjectItem = _this.objects.length - 1;
+                        _this.objects[lastObjectItem].createAnchor(_this.mouse.x, _this.mouse.y);
+                    }
+                }
+                else {
+                    _this.startOfObject = true;
+                }
+            }
+        });
+    };
+    //TODO: Deze Functie is letterlijk een clone van pencilEventListener(), dit even netjes maken
+    //TODO: Gum heeft bug bij het maken van wit over een object wat niet van kleur is veranderd bij het aanmaken
+    Canvas.prototype.eraserEventListener = function () {
+        var _this = this;
+        window.addEventListener('mousemove', function (event) {
+            if (_this.currentTool == tools.eraser && event.target === _this.canvas) {
+                if (event.buttons === 1) {
+                    if (_this.startOfObject) {
+                        _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, '#FFFFFF', 5));
                         _this.startOfObject = false;
                     }
                     else {
@@ -396,5 +419,6 @@ var Arc = /** @class */ (function (_super) {
     return Arc;
 }(DrawObject));
 //Create Paint Programm
-new ConstructProgram(1000, 600);
+// new ConstructProgram(1000, 600);
+new ConstructProgram(window.innerWidth - 200, window.innerHeight - 184);
 //# sourceMappingURL=scripts.js.map

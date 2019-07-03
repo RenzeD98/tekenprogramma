@@ -86,6 +86,7 @@ class Canvas
         this.mouseMovementEventListener();
         this.pencilEventListener();
         this.brushEventListener();
+        this.eraserEventListener();
         this.cirlceEventListener();
         this.squareEventListener();
         this.buttonsEventListeners();
@@ -143,6 +144,26 @@ class Canvas
                 if (event.buttons === 1) {
                     if (this.startOfObject) {
                         this.objects.push(new Line(this.c, this.mouse.x, this.mouse.y, this.currentColor, 10));
+                        this.startOfObject = false;
+                    } else {
+                        let lastObjectItem = this.objects.length - 1;
+                        this.objects[lastObjectItem].createAnchor(this.mouse.x, this.mouse.y);
+                    }
+                } else {
+                    this.startOfObject = true;
+                }
+            }
+        });
+    }
+
+    //TODO: Deze Functie is letterlijk een clone van pencilEventListener(), dit even netjes maken
+    //TODO: Gum heeft bug bij het maken van wit over een object wat niet van kleur is veranderd bij het aanmaken
+    eraserEventListener(){
+        window.addEventListener('mousemove', event => {
+            if (this.currentTool == tools.eraser && event.target === this.canvas) {
+                if (event.buttons === 1) {
+                    if (this.startOfObject) {
+                        this.objects.push(new Line(this.c, this.mouse.x, this.mouse.y, '#FFFFFF', 5));
                         this.startOfObject = false;
                     } else {
                         let lastObjectItem = this.objects.length - 1;
@@ -495,4 +516,5 @@ class Arc extends DrawObject
 }
 
 //Create Paint Programm
-new ConstructProgram(1000, 600);
+// new ConstructProgram(1000, 600);
+new ConstructProgram(window.innerWidth - 200, window.innerHeight - 184);
