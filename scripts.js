@@ -209,9 +209,12 @@ var Canvas = /** @class */ (function () {
         });
     };
     Canvas.prototype.buttonsEventListeners = function () {
-        // this.toolbox.downloadButton.addEventListener('click', () => {
-        //     this.toolbox.downloadButton.href = this.canvas.toDataURL("image/png");
-        // });
+        var _this = this;
+        var downloadButton = document.getElementById('downloadButton');
+        downloadButton.setAttribute('download', 'mijn mooie creatie');
+        downloadButton.addEventListener('click', function () {
+            downloadButton.setAttribute('href', _this.canvas.toDataURL("image/png"));
+        });
     };
     return Canvas;
 }());

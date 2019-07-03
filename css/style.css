@@ -1,11 +1,11 @@
 @font-face {
     font-family: "pixel-bold";
-    src: url("../fonts/pixe_ab.ttf") format("truetype");
+    src: url("fonts/pixe_ab.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "pixel-norm";
-    src: url("../fonts/pixe_arg.ttf") format("truetype");
+    src: url("fonts/pixe_arg.ttf") format("truetype");
 }
 
 body{
@@ -79,6 +79,11 @@ body{
 .option-bar .word .first-letter {
     text-decoration: underline;
     cursor: pointer;
+}
+
+.option-bar #downloadButton {
+    text-decoration: none;
+    color: #000;
 }
 
 /** ------------------------------

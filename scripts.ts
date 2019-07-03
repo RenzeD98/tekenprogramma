@@ -233,9 +233,11 @@ class Canvas
     }
 
     buttonsEventListeners(){
-        // this.toolbox.downloadButton.addEventListener('click', () => {
-        //     this.toolbox.downloadButton.href = this.canvas.toDataURL("image/png");
-        // });
+        let downloadButton = document.getElementById('downloadButton');
+        downloadButton.setAttribute('download', 'mijn mooie creatie');
+        downloadButton.addEventListener('click', () => {
+            downloadButton.setAttribute('href', this.canvas.toDataURL("image/png"));
+        });
     }
 }
 
