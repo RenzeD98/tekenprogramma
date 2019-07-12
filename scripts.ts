@@ -66,6 +66,7 @@ class Canvas
 
     currentTool:number;
     currentColor:string;
+    currentSecColor:string;
 
     objects = [];
     undoneObjects = [];
@@ -334,12 +335,14 @@ class Colorbox {
     colorpicker:HTMLElement;
     colorbar:HTMLElement;
     selectedColor:string;
+    selectedSecColor:string;
     colors:string[];
     delegate:IToolboxObserver;
 
     constructor(delegate:IToolboxObserver){
         this.delegate = delegate;
         this.selectedColor = '#000000';
+        this.selectedSecColor = '#FFFFFF';
         this.colors = [
             '#000000', '#7C7E7C', '#7C0204', '#7C7E04', '#047E04', '#047E7C', '#04027C',
             '#7C027C', '#7C7E3C', '#043E3C', '#047EFC', '#043E7C', '#3C02FC', '#7C3E04',
@@ -388,6 +391,7 @@ class Colorbox {
             itemInput.setAttribute('name', 'color');
             itemInput.setAttribute('value', this.colors[i]);
             itemInput.addEventListener('change', this.changeColor);
+            itemInput.addEventListener('contextmenu', this.changeSecColor);
             this.selectedColor === this.colors[i] ? itemInput.setAttribute('checked', 'checked') : '';
 
             itemLi.appendChild(itemInput);
@@ -405,6 +409,16 @@ class Colorbox {
     updateColor() {
         this.delegate.colorChanged(this.selectedColor);
         this.colorbox1.setAttribute('style', 'background-color: '+this.selectedColor);
+    }
+
+    changeSecColor = item => {
+        this.selectedSecColor = item.target.value;
+        this.updateSecColor();
+    };
+
+    updateSecColor() {
+        this.delegate.colorChanged(this.selectedColor);
+        this.colorbox2.setAttribute('style', 'background-color: '+this.selectedSecColor);
     }
 }
 
