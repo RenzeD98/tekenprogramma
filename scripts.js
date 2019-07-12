@@ -268,7 +268,7 @@ var Canvas = /** @class */ (function () {
             if (_this.currentTool == tools.elipse && event.target === _this.canvas) {
                 if (_this.startOfObject) {
                     //TODO: Deze fillColor heeft nu de value die de lineColor eigenlijks moet hebben
-                    _this.objects.push(new Arc(_this.c, _this.mouse.x, _this.mouse.y, false, 'green', 3, true, _this.currentColor));
+                    _this.objects.push(new Arc(_this.c, _this.mouse.x, _this.mouse.y, true, _this.currentColor, 5, true, _this.currentSecColor));
                     _this.startOfObject = false;
                 }
                 else {

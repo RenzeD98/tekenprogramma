@@ -292,8 +292,8 @@ class Canvas
                 if(this.startOfObject){
                     //TODO: Deze fillColor heeft nu de value die de lineColor eigenlijks moet hebben
                     this.objects.push(new Arc(
-                        this.c, this.mouse.x, this.mouse.y, false,
-                        'green', 3, true, this.currentColor)
+                        this.c, this.mouse.x, this.mouse.y, true,
+                        this.currentColor, 5, true, this.currentSecColor)
                     );
                     this.startOfObject = false;
                 } else {
