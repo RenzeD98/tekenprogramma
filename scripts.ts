@@ -25,6 +25,7 @@ interface IMousePosition {
 interface IToolboxObserver {
     toolChanged(tool:number):void
     colorChanged(color:string):void
+    secColorChanged(color:string):void
 }
 
 /** -----------------------------------------------------------------------
@@ -50,6 +51,10 @@ class ConstructProgram implements IToolboxObserver
 
     colorChanged(color:string) {
         this.canvas.currentColor = color;
+    }
+
+    secColorChanged(color:string) {
+        this.canvas.currentSecColor = color;
     }
 }
 
@@ -244,8 +249,8 @@ class Canvas
                     //TODO: Deze fillColor heeft nu de value die de lineColor eigenlijks moet hebben
                     this.objects.push( new Rect(
                             this.c, this.mouse.x, this.mouse.y,
-                            false,  'green', 5,
-                            true, this.currentColor)
+                            true, this.currentColor, 5,
+                            true, this.currentSecColor)
                     );
                     this.startOfObject = false;
                 } else {
@@ -357,6 +362,7 @@ class Colorbox {
         this.appendColorbox();
         this.appendColorpicker();
         this.updateColor();
+        this.updateSecColor();
     }
 
     appendColorbox(){
@@ -417,7 +423,7 @@ class Colorbox {
     };
 
     updateSecColor() {
-        this.delegate.colorChanged(this.selectedColor);
+        this.delegate.secColorChanged(this.selectedSecColor);
         this.colorbox2.setAttribute('style', 'background-color: '+this.selectedSecColor);
     }
 }
@@ -485,26 +491,30 @@ class Rect extends DrawObject
     height:number;
     hasline:boolean;
     innerColor:string;
+    lineColor:string;
 
     constructor(c:any, x:number, y:number, hasLine:boolean, lineColor:string, lineWidth:number, hasFill:boolean, fillColor:string){
         super(c, x, y, lineColor, lineWidth);
         this.hasline = hasLine;
         this.innerColor = fillColor;
+        this.lineColor = lineColor;
     }
 
     createObject(x:number, y:number){
-        this.c.fillStyle = this.innerColor;
-
         this.width = x - this.xStart;
         this.height = y - this.yStart;
     }
 
     drawObject(){
+        this.c.beginPath();
         this.c.fillStyle = this.innerColor;
-        this.c.fillRect(this.xStart, this.yStart, this.width, this.height);
+        this.c.strokeStyle = this.lineColor;
+        this.c.lineWidth = this.lineWidth;
+        this.c.rect(this.xStart, this.yStart, this.width, this.height);
+        this.c.fill();
+        this.c.stroke();
 
         super.drawObject();
-
     }
 }
 

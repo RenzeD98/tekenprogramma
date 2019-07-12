@@ -47,6 +47,9 @@ var ConstructProgram = /** @class */ (function () {
     ConstructProgram.prototype.colorChanged = function (color) {
         this.canvas.currentColor = color;
     };
+    ConstructProgram.prototype.secColorChanged = function (color) {
+        this.canvas.currentSecColor = color;
+    };
     return ConstructProgram;
 }());
 /** -----------------------------------------------------------------------
@@ -221,7 +224,7 @@ var Canvas = /** @class */ (function () {
             if (_this.currentTool == tools.rectangle && event.target === _this.canvas) {
                 if (_this.startOfObject) {
                     //TODO: Deze fillColor heeft nu de value die de lineColor eigenlijks moet hebben
-                    _this.objects.push(new Rect(_this.c, _this.mouse.x, _this.mouse.y, false, 'green', 5, true, _this.currentColor));
+                    _this.objects.push(new Rect(_this.c, _this.mouse.x, _this.mouse.y, true, _this.currentColor, 5, true, _this.currentSecColor));
                     _this.startOfObject = false;
                 }
                 else {
@@ -316,6 +319,7 @@ var Colorbox = /** @class */ (function () {
         this.appendColorbox();
         this.appendColorpicker();
         this.updateColor();
+        this.updateSecColor();
     }
     Colorbox.prototype.appendColorbox = function () {
         this.colorbox = document.createElement('div');
@@ -353,7 +357,7 @@ var Colorbox = /** @class */ (function () {
         this.colorbox1.setAttribute('style', 'background-color: ' + this.selectedColor);
     };
     Colorbox.prototype.updateSecColor = function () {
-        this.delegate.colorChanged(this.selectedColor);
+        this.delegate.secColorChanged(this.selectedSecColor);
         this.colorbox2.setAttribute('style', 'background-color: ' + this.selectedSecColor);
     };
     return Colorbox;
@@ -407,16 +411,21 @@ var Rect = /** @class */ (function (_super) {
         var _this = _super.call(this, c, x, y, lineColor, lineWidth) || this;
         _this.hasline = hasLine;
         _this.innerColor = fillColor;
+        _this.lineColor = lineColor;
         return _this;
     }
     Rect.prototype.createObject = function (x, y) {
-        this.c.fillStyle = this.innerColor;
         this.width = x - this.xStart;
         this.height = y - this.yStart;
     };
     Rect.prototype.drawObject = function () {
+        this.c.beginPath();
         this.c.fillStyle = this.innerColor;
-        this.c.fillRect(this.xStart, this.yStart, this.width, this.height);
+        this.c.strokeStyle = this.lineColor;
+        this.c.lineWidth = this.lineWidth;
+        this.c.rect(this.xStart, this.yStart, this.width, this.height);
+        this.c.fill();
+        this.c.stroke();
         _super.prototype.drawObject.call(this);
     };
     return Rect;
