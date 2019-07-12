@@ -129,9 +129,10 @@ var Canvas = /** @class */ (function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
             if (_this.currentTool == tools.pencil && event.target === _this.canvas) {
-                if (event.buttons === 1) {
+                if (event.buttons === 1 || event.buttons === 2) {
                     if (_this.startOfObject) {
-                        _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, _this.currentColor, 3));
+                        var penColor = (event.buttons === 2 ? _this.currentSecColor : _this.currentColor);
+                        _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, penColor, 3));
                         _this.startOfObject = false;
                     }
                     else {
@@ -150,9 +151,10 @@ var Canvas = /** @class */ (function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
             if (_this.currentTool == tools.brush && event.target === _this.canvas) {
-                if (event.buttons === 1) {
+                if (event.buttons === 1 || event.buttons === 2) {
                     if (_this.startOfObject) {
-                        _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, _this.currentColor, 10));
+                        var penColor = (event.buttons === 2 ? _this.currentSecColor : _this.currentColor);
+                        _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, penColor, 10));
                         _this.startOfObject = false;
                     }
                     else {

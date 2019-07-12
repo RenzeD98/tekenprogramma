@@ -154,9 +154,10 @@ class Canvas
     pencilEventListener(){
         window.addEventListener('mousemove', event => {
             if (this.currentTool == tools.pencil && event.target === this.canvas) {
-                if (event.buttons === 1) {
+                if (event.buttons === 1 || event.buttons === 2) {
                     if (this.startOfObject) {
-                        this.objects.push(new Line(this.c, this.mouse.x, this.mouse.y, this.currentColor, 3));
+                        let penColor = (event.buttons === 2 ? this.currentSecColor : this.currentColor);
+                        this.objects.push(new Line(this.c, this.mouse.x, this.mouse.y, penColor, 3));
                         this.startOfObject = false;
                     } else {
                         let lastObjectItem = this.objects.length - 1;
@@ -173,9 +174,10 @@ class Canvas
     brushEventListener(){
         window.addEventListener('mousemove', event => {
             if (this.currentTool == tools.brush && event.target === this.canvas) {
-                if (event.buttons === 1) {
+                if (event.buttons === 1 || event.buttons === 2) {
                     if (this.startOfObject) {
-                        this.objects.push(new Line(this.c, this.mouse.x, this.mouse.y, this.currentColor, 10));
+                        let penColor = (event.buttons === 2 ? this.currentSecColor : this.currentColor);
+                        this.objects.push(new Line(this.c, this.mouse.x, this.mouse.y, penColor, 10));
                         this.startOfObject = false;
                     } else {
                         let lastObjectItem = this.objects.length - 1;
