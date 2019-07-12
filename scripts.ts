@@ -27,7 +27,6 @@ interface IToolboxObserver {
     colorChanged(color:string):void
 }
 
-
 /** -----------------------------------------------------------------------
  * ConstructProgram
  * - Superclass?
@@ -69,6 +68,7 @@ class Canvas
     currentColor:string;
 
     objects = [];
+    undoneObjects = [];
     startOfObject:boolean = true;
 
     mouse:IMousePosition;
@@ -90,6 +90,8 @@ class Canvas
         this.circleEventListener();
         this.squareEventListener();
         this.buttonsEventListeners();
+        this.undoEventListener();
+        this.redoEventListener();
     }
 
     drawCanvas(){
@@ -117,6 +119,28 @@ class Canvas
             this.mouse.x = event.offsetX;
             this.mouse.y = event.offsetY;
         });
+    }
+
+    undoEventListener(){
+        window.addEventListener('keypress', event => {
+            if (event.code === "KeyZ" && event.ctrlKey === true && this.objects[this.objects.length - 1] !== undefined) {
+                this.undoneObjects.push(this.objects[this.objects.length - 1]);
+                this.objects.pop();
+            }
+        });
+    }
+
+    redoEventListener(){
+        window.addEventListener('keypress', event => {
+            if (event.code === "KeyY" && event.ctrlKey === true && this.undoneObjects[this.undoneObjects.length - 1] !== undefined) {
+                this.objects.push(this.undoneObjects[this.undoneObjects.length - 1]);
+                this.undoneObjects.pop();
+            }
+        });
+
+        window.addEventListener('mousedown', event => {
+            this.undoneObjects = [];
+        })
     }
 
     pencilEventListener(){

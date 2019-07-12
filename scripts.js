@@ -55,6 +55,7 @@ var ConstructProgram = /** @class */ (function () {
 var Canvas = /** @class */ (function () {
     function Canvas(width, height) {
         this.objects = [];
+        this.undoneObjects = [];
         this.startOfObject = true;
         this.width = width;
         this.height = height;
@@ -71,6 +72,8 @@ var Canvas = /** @class */ (function () {
         this.circleEventListener();
         this.squareEventListener();
         this.buttonsEventListeners();
+        this.undoEventListener();
+        this.redoEventListener();
     }
     Canvas.prototype.drawCanvas = function () {
         //initializing size and the context of the canvas
@@ -94,6 +97,27 @@ var Canvas = /** @class */ (function () {
         window.addEventListener('mousemove', function (event) {
             _this.mouse.x = event.offsetX;
             _this.mouse.y = event.offsetY;
+        });
+    };
+    Canvas.prototype.undoEventListener = function () {
+        var _this = this;
+        window.addEventListener('keypress', function (event) {
+            if (event.code === "KeyZ" && event.ctrlKey === true && _this.objects[_this.objects.length - 1] !== undefined) {
+                _this.undoneObjects.push(_this.objects[_this.objects.length - 1]);
+                _this.objects.pop();
+            }
+        });
+    };
+    Canvas.prototype.redoEventListener = function () {
+        var _this = this;
+        window.addEventListener('keypress', function (event) {
+            if (event.code === "KeyY" && event.ctrlKey === true && _this.undoneObjects[_this.undoneObjects.length - 1] !== undefined) {
+                _this.objects.push(_this.undoneObjects[_this.undoneObjects.length - 1]);
+                _this.undoneObjects.pop();
+            }
+        });
+        window.addEventListener('mousedown', function (event) {
+            _this.undoneObjects = [];
         });
     };
     Canvas.prototype.pencilEventListener = function () {
