@@ -71,6 +71,8 @@ var Canvas = /** @class */ (function () {
         this.cirlceEventListener();
         this.squareEventListener();
         this.buttonsEventListeners();
+        this.polygonEventListener();
+        this.lineEventListener();
     }
     Canvas.prototype.drawCanvas = function () {
         //initializing size and the context of the canvas
@@ -154,6 +156,71 @@ var Canvas = /** @class */ (function () {
                 }
                 else {
                     _this.startOfObject = true;
+                }
+            }
+        });
+    };
+    Canvas.prototype.lineEventListener = function () {
+        var _this = this;
+        window.addEventListener('mousemove', function (event) {
+            if (_this.currentTool == tools.line && event.target === _this.canvas) {
+                if (!_this.startOfObject) {
+                    var lastObjectItem = _this.objects.length - 1;
+                    var lastAnchorPoint = _this.objects[lastObjectItem].anchorPoints.length - 1;
+                    _this.objects[lastObjectItem].anchorPoints[lastAnchorPoint] = [_this.mouse.x, _this.mouse.y];
+                }
+            }
+        });
+        window.addEventListener('mousedown', function (event) {
+            if (_this.currentTool == tools.line && event.target === _this.canvas) {
+                if (_this.startOfObject) {
+                    _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, _this.currentColor, 3));
+                    var lastObjectItem = _this.objects.length - 1;
+                    _this.objects[lastObjectItem].createAnchor(_this.mouse.x, _this.mouse.y);
+                    _this.startOfObject = false;
+                }
+                else {
+                    var lastObjectItem = _this.objects.length - 1;
+                    _this.objects[lastObjectItem].createAnchor(_this.mouse.x, _this.mouse.y);
+                    _this.startOfObject = true;
+                }
+            }
+        });
+    };
+    Canvas.prototype.polygonEventListener = function () {
+        var _this = this;
+        window.addEventListener('mousemove', function (event) {
+            if (_this.currentTool == tools.polygon && event.target === _this.canvas) {
+                if (!_this.startOfObject) {
+                    var lastObjectItem = _this.objects.length - 1;
+                    var lastAnchorPoint = _this.objects[lastObjectItem].anchorPoints.length - 1;
+                    _this.objects[lastObjectItem].anchorPoints[lastAnchorPoint] = [_this.mouse.x, _this.mouse.y];
+                }
+            }
+        });
+        window.addEventListener('mousedown', function (event) {
+            if (_this.currentTool == tools.polygon && event.target === _this.canvas) {
+                if (_this.startOfObject) {
+                    _this.objects.push(new Line(_this.c, _this.mouse.x, _this.mouse.y, _this.currentColor, 3));
+                    var lastObjectItem = _this.objects.length - 1;
+                    _this.objects[lastObjectItem].createAnchor(_this.mouse.x, _this.mouse.y);
+                    _this.startOfObject = false;
+                }
+                else {
+                    var lastObjectItem = _this.objects.length - 1;
+                    if (_this.objects[lastObjectItem].xStart - _this.mouse.x < 10 &&
+                        _this.objects[lastObjectItem].yStart - _this.mouse.y < 10 &&
+                        _this.objects[lastObjectItem].xStart - _this.mouse.x > -10 &&
+                        _this.objects[lastObjectItem].yStart - _this.mouse.y > -10) {
+                        var lastAnchorPoint = _this.objects[lastObjectItem].anchorPoints.length - 1;
+                        _this.objects[lastObjectItem].anchorPoints[lastAnchorPoint] = [_this.objects[lastObjectItem].xStart, _this.objects[lastObjectItem].yStart];
+                        _this.startOfObject = true;
+                        console.log('einde objecto');
+                    }
+                    else {
+                        _this.objects[lastObjectItem].createAnchor(_this.mouse.x, _this.mouse.y);
+                        console.log('we gaan lekker door hihi');
+                    }
                 }
             }
         });

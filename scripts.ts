@@ -90,6 +90,8 @@ class Canvas
         this.cirlceEventListener();
         this.squareEventListener();
         this.buttonsEventListeners();
+        this.polygonEventListener();
+        this.lineEventListener();
     }
 
     drawCanvas(){
@@ -170,6 +172,74 @@ class Canvas
                     }
                 } else {
                     this.startOfObject = true;
+                }
+            }
+        });
+    }
+
+    lineEventListener(){
+        window.addEventListener('mousemove', event => {
+            if (this.currentTool == tools.line && event.target === this.canvas) {
+                if(!this.startOfObject){
+                    let lastObjectItem = this.objects.length - 1;
+                    let lastAnchorPoint = this.objects[lastObjectItem].anchorPoints.length -1;
+                    this.objects[lastObjectItem].anchorPoints[lastAnchorPoint] = [this.mouse.x, this.mouse.y];
+                }
+            }
+        });
+
+        window.addEventListener('mousedown', event => {
+            if(this.currentTool == tools.line && event.target === this.canvas){
+                if(this.startOfObject){
+                    this.objects.push( new Line(this.c, this.mouse.x, this.mouse.y, this.currentColor, 3));
+                    let lastObjectItem = this.objects.length - 1;
+                    this.objects[lastObjectItem].createAnchor(this.mouse.x, this.mouse.y);
+                    this.startOfObject = false;
+                } else {
+                    let lastObjectItem = this.objects.length - 1;
+                    this.objects[lastObjectItem].createAnchor(this.mouse.x, this.mouse.y);
+                    this.startOfObject = true;
+                }
+            }
+        });
+    }
+
+    polygonEventListener(){
+        window.addEventListener('mousemove', event => {
+            if (this.currentTool == tools.polygon && event.target === this.canvas) {
+                if(!this.startOfObject){
+                    let lastObjectItem = this.objects.length - 1;
+                    let lastAnchorPoint = this.objects[lastObjectItem].anchorPoints.length -1;
+                    this.objects[lastObjectItem].anchorPoints[lastAnchorPoint] = [this.mouse.x, this.mouse.y];
+                }
+            }
+        });
+
+        window.addEventListener('mousedown', event => {
+            if(this.currentTool == tools.polygon && event.target === this.canvas){
+                if(this.startOfObject){
+                    this.objects.push( new Line(this.c, this.mouse.x, this.mouse.y, this.currentColor, 3));
+                    let lastObjectItem = this.objects.length - 1;
+                    this.objects[lastObjectItem].createAnchor(this.mouse.x, this.mouse.y);
+                    this.startOfObject = false;
+                } else {
+                    let lastObjectItem = this.objects.length - 1;
+
+                    if(
+                        this.objects[lastObjectItem].xStart - this.mouse.x < 10 &&
+                        this.objects[lastObjectItem].yStart - this.mouse.y < 10 &&
+                        this.objects[lastObjectItem].xStart - this.mouse.x > -10 &&
+                        this.objects[lastObjectItem].yStart - this.mouse.y > -10
+                    ){
+
+                        let lastAnchorPoint = this.objects[lastObjectItem].anchorPoints.length -1;
+                        this.objects[lastObjectItem].anchorPoints[lastAnchorPoint] = [this.objects[lastObjectItem].xStart, this.objects[lastObjectItem].yStart];
+                        this.startOfObject = true;
+                        console.log('einde objecto');
+                    } else {
+                        this.objects[lastObjectItem].createAnchor(this.mouse.x, this.mouse.y);
+                        console.log('we gaan lekker door hihi');
+                    }
                 }
             }
         });
