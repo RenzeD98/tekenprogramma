@@ -47,6 +47,9 @@ var ConstructProgram = /** @class */ (function () {
     ConstructProgram.prototype.colorChanged = function (color) {
         this.canvas.currentColor = color;
     };
+    ConstructProgram.prototype.secColorChanged = function (color) {
+        this.canvas.currentSecColor = color;
+    };
     return ConstructProgram;
 }());
 /** -----------------------------------------------------------------------
@@ -55,6 +58,7 @@ var ConstructProgram = /** @class */ (function () {
 var Canvas = /** @class */ (function () {
     function Canvas(width, height) {
         this.objects = [];
+        this.undoneObjects = [];
         this.startOfObject = true;
         this.width = width;
         this.height = height;
@@ -68,11 +72,13 @@ var Canvas = /** @class */ (function () {
         this.pencilEventListener();
         this.brushEventListener();
         this.eraserEventListener();
-        this.cirlceEventListener();
+        this.circleEventListener();
         this.squareEventListener();
         this.buttonsEventListeners();
         this.polygonEventListener();
         this.lineEventListener();
+        this.undoEventListener();
+        this.redoEventListener();
     }
     Canvas.prototype.drawCanvas = function () {
         //initializing size and the context of the canvas
@@ -96,6 +102,27 @@ var Canvas = /** @class */ (function () {
         window.addEventListener('mousemove', function (event) {
             _this.mouse.x = event.offsetX;
             _this.mouse.y = event.offsetY;
+        });
+    };
+    Canvas.prototype.undoEventListener = function () {
+        var _this = this;
+        window.addEventListener('keypress', function (event) {
+            if (event.code === "KeyZ" && event.ctrlKey === true && _this.objects[_this.objects.length - 1] !== undefined) {
+                _this.undoneObjects.push(_this.objects[_this.objects.length - 1]);
+                _this.objects.pop();
+            }
+        });
+    };
+    Canvas.prototype.redoEventListener = function () {
+        var _this = this;
+        window.addEventListener('keypress', function (event) {
+            if (event.code === "KeyY" && event.ctrlKey === true && _this.undoneObjects[_this.undoneObjects.length - 1] !== undefined) {
+                _this.objects.push(_this.undoneObjects[_this.undoneObjects.length - 1]);
+                _this.undoneObjects.pop();
+            }
+        });
+        window.addEventListener('mousedown', function (event) {
+            _this.undoneObjects = [];
         });
     };
     Canvas.prototype.pencilEventListener = function () {
@@ -225,7 +252,7 @@ var Canvas = /** @class */ (function () {
             }
         });
     };
-    Canvas.prototype.cirlceEventListener = function () {
+    Canvas.prototype.circleEventListener = function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
             if (_this.currentTool == tools.elipse && event.target === _this.canvas) {
@@ -264,7 +291,7 @@ var Canvas = /** @class */ (function () {
             if (_this.currentTool == tools.rectangle && event.target === _this.canvas) {
                 if (_this.startOfObject) {
                     //TODO: Deze fillColor heeft nu de value die de lineColor eigenlijks moet hebben
-                    _this.objects.push(new Rect(_this.c, _this.mouse.x, _this.mouse.y, false, 'green', 5, true, _this.currentColor));
+                    _this.objects.push(new Rect(_this.c, _this.mouse.x, _this.mouse.y, true, _this.currentColor, 5, true, _this.currentSecColor));
                     _this.startOfObject = false;
                 }
                 else {
@@ -292,13 +319,13 @@ var Toolbox = /** @class */ (function () {
     function Toolbox(delegate, height) {
         var _this = this;
         this.changeTool = function (item) {
-            _this._selectedTool = item.target.value;
+            _this.selectedTool = item.target.value;
             _this.updateTool();
         };
         this.delegate = delegate;
         this.height = height;
         this.totalTools = 16;
-        this._selectedTool = 6;
+        this.selectedTool = 6;
         this.updateTool();
         this.appendToolbox();
     }
@@ -314,7 +341,7 @@ var Toolbox = /** @class */ (function () {
             itemInput.setAttribute('name', 'tool');
             itemInput.setAttribute('value', i.toString());
             itemInput.addEventListener('change', this.changeTool);
-            this._selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
+            this.selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
             itemIcon.className = 'tool-bar-icon';
             itemIcon.setAttribute('style', 'background-image: url("icons/' + i + '.png")');
             itemLi.appendChild(itemInput);
@@ -326,7 +353,7 @@ var Toolbox = /** @class */ (function () {
         toolbar.appendChild(this.toolbox);
     };
     Toolbox.prototype.updateTool = function () {
-        this.delegate.toolChanged(this._selectedTool);
+        this.delegate.toolChanged(this.selectedTool);
     };
     return Toolbox;
 }());
@@ -337,11 +364,16 @@ var Colorbox = /** @class */ (function () {
     function Colorbox(delegate) {
         var _this = this;
         this.changeColor = function (item) {
-            _this._selectedColor = item.target.value;
+            _this.selectedColor = item.target.value;
             _this.updateColor();
         };
+        this.changeSecColor = function (item) {
+            _this.selectedSecColor = item.target.value;
+            _this.updateSecColor();
+        };
         this.delegate = delegate;
-        this._selectedColor = '#000000';
+        this.selectedColor = '#000000';
+        this.selectedSecColor = '#FFFFFF';
         this.colors = [
             '#000000', '#7C7E7C', '#7C0204', '#7C7E04', '#047E04', '#047E7C', '#04027C',
             '#7C027C', '#7C7E3C', '#043E3C', '#047EFC', '#043E7C', '#3C02FC', '#7C3E04',
@@ -354,6 +386,7 @@ var Colorbox = /** @class */ (function () {
         this.appendColorbox();
         this.appendColorpicker();
         this.updateColor();
+        this.updateSecColor();
     }
     Colorbox.prototype.appendColorbox = function () {
         this.colorbox = document.createElement('div');
@@ -361,7 +394,7 @@ var Colorbox = /** @class */ (function () {
         this.colorbox1 = document.createElement('div');
         this.colorbox2 = document.createElement('div');
         this.colorbox1.className = 'color-preview-1 color';
-        this.colorbox1.setAttribute('style', 'background-color: ' + this._selectedColor);
+        this.colorbox1.setAttribute('style', 'background-color: ' + this.selectedColor);
         this.colorbox2.className = 'color-preview-2 color';
         this.colorbox.appendChild(this.colorbox1);
         this.colorbox.appendChild(this.colorbox2);
@@ -379,15 +412,20 @@ var Colorbox = /** @class */ (function () {
             itemInput.setAttribute('name', 'color');
             itemInput.setAttribute('value', this.colors[i]);
             itemInput.addEventListener('change', this.changeColor);
-            this._selectedColor === this.colors[i] ? itemInput.setAttribute('checked', 'checked') : '';
+            itemInput.addEventListener('contextmenu', this.changeSecColor);
+            this.selectedColor === this.colors[i] ? itemInput.setAttribute('checked', 'checked') : '';
             itemLi.appendChild(itemInput);
             this.colorpicker.appendChild(itemLi);
         }
         this.colorbar.appendChild(this.colorpicker);
     };
     Colorbox.prototype.updateColor = function () {
-        this.delegate.colorChanged(this._selectedColor);
-        this.colorbox1.setAttribute('style', 'background-color: ' + this._selectedColor);
+        this.delegate.colorChanged(this.selectedColor);
+        this.colorbox1.setAttribute('style', 'background-color: ' + this.selectedColor);
+    };
+    Colorbox.prototype.updateSecColor = function () {
+        this.delegate.secColorChanged(this.selectedSecColor);
+        this.colorbox2.setAttribute('style', 'background-color: ' + this.selectedSecColor);
     };
     return Colorbox;
 }());
@@ -440,16 +478,21 @@ var Rect = /** @class */ (function (_super) {
         var _this = _super.call(this, c, x, y, lineColor, lineWidth) || this;
         _this.hasline = hasLine;
         _this.innerColor = fillColor;
+        _this.lineColor = lineColor;
         return _this;
     }
     Rect.prototype.createObject = function (x, y) {
-        this.c.fillStyle = this.innerColor;
         this.width = x - this.xStart;
         this.height = y - this.yStart;
     };
     Rect.prototype.drawObject = function () {
+        this.c.beginPath();
         this.c.fillStyle = this.innerColor;
-        this.c.fillRect(this.xStart, this.yStart, this.width, this.height);
+        this.c.strokeStyle = this.lineColor;
+        this.c.lineWidth = this.lineWidth;
+        this.c.rect(this.xStart, this.yStart, this.width, this.height);
+        this.c.fill();
+        this.c.stroke();
         _super.prototype.drawObject.call(this);
     };
     return Rect;

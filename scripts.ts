@@ -25,8 +25,8 @@ interface IMousePosition {
 interface IToolboxObserver {
     toolChanged(tool:number):void
     colorChanged(color:string):void
+    secColorChanged(color:string):void
 }
-
 
 /** -----------------------------------------------------------------------
  * ConstructProgram
@@ -52,6 +52,10 @@ class ConstructProgram implements IToolboxObserver
     colorChanged(color:string) {
         this.canvas.currentColor = color;
     }
+
+    secColorChanged(color:string) {
+        this.canvas.currentSecColor = color;
+    }
 }
 
 /** -----------------------------------------------------------------------
@@ -67,8 +71,10 @@ class Canvas
 
     currentTool:number;
     currentColor:string;
+    currentSecColor:string;
 
     objects = [];
+    undoneObjects = [];
     startOfObject:boolean = true;
 
     mouse:IMousePosition;
@@ -87,11 +93,13 @@ class Canvas
         this.pencilEventListener();
         this.brushEventListener();
         this.eraserEventListener();
-        this.cirlceEventListener();
+        this.circleEventListener();
         this.squareEventListener();
         this.buttonsEventListeners();
         this.polygonEventListener();
         this.lineEventListener();
+        this.undoEventListener();
+        this.redoEventListener();
     }
 
     drawCanvas(){
@@ -119,6 +127,28 @@ class Canvas
             this.mouse.x = event.offsetX;
             this.mouse.y = event.offsetY;
         });
+    }
+
+    undoEventListener(){
+        window.addEventListener('keypress', event => {
+            if (event.code === "KeyZ" && event.ctrlKey === true && this.objects[this.objects.length - 1] !== undefined) {
+                this.undoneObjects.push(this.objects[this.objects.length - 1]);
+                this.objects.pop();
+            }
+        });
+    }
+
+    redoEventListener(){
+        window.addEventListener('keypress', event => {
+            if (event.code === "KeyY" && event.ctrlKey === true && this.undoneObjects[this.undoneObjects.length - 1] !== undefined) {
+                this.objects.push(this.undoneObjects[this.undoneObjects.length - 1]);
+                this.undoneObjects.pop();
+            }
+        });
+
+        window.addEventListener('mousedown', event => {
+            this.undoneObjects = [];
+        })
     }
 
     pencilEventListener(){
@@ -245,7 +275,7 @@ class Canvas
         });
     }
 
-    cirlceEventListener(){
+    circleEventListener(){
         window.addEventListener('mousemove', event => {
             if (this.currentTool == tools.elipse && event.target === this.canvas) {
                 if(!this.startOfObject){
@@ -289,8 +319,8 @@ class Canvas
                     //TODO: Deze fillColor heeft nu de value die de lineColor eigenlijks moet hebben
                     this.objects.push( new Rect(
                             this.c, this.mouse.x, this.mouse.y,
-                            false,  'green', 5,
-                            true, this.currentColor)
+                            true, this.currentColor, 5,
+                            true, this.currentSecColor)
                     );
                     this.startOfObject = false;
                 } else {
@@ -317,7 +347,7 @@ class Canvas
 class Toolbox
 {
     toolbox:HTMLElement;
-    _selectedTool:number;
+    selectedTool:number;
     totalTools:number;
     delegate:IToolboxObserver;
     height:number;
@@ -326,7 +356,7 @@ class Toolbox
         this.delegate = delegate;
         this.height = height;
         this.totalTools = 16;
-        this._selectedTool = 6;
+        this.selectedTool = 6;
         this.updateTool();
         this.appendToolbox();
     }
@@ -345,7 +375,7 @@ class Toolbox
             itemInput.setAttribute('name', 'tool');
             itemInput.setAttribute('value', i.toString());
             itemInput.addEventListener('change', this.changeTool);
-            this._selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
+            this.selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
             itemIcon.className = 'tool-bar-icon';
             itemIcon.setAttribute('style', 'background-image: url("icons/'+ i +'.png")');
 
@@ -361,12 +391,12 @@ class Toolbox
     }
 
     changeTool = item => {
-        this._selectedTool = item.target.value;
+        this.selectedTool = item.target.value;
         this.updateTool();
     };
 
     updateTool() {
-        this.delegate.toolChanged(this._selectedTool);
+        this.delegate.toolChanged(this.selectedTool);
     }
 }
 
@@ -379,13 +409,15 @@ class Colorbox {
     colorbox2:HTMLElement;
     colorpicker:HTMLElement;
     colorbar:HTMLElement;
-    _selectedColor:string;
+    selectedColor:string;
+    selectedSecColor:string;
     colors:string[];
     delegate:IToolboxObserver;
 
     constructor(delegate:IToolboxObserver){
         this.delegate = delegate;
-        this._selectedColor = '#000000';
+        this.selectedColor = '#000000';
+        this.selectedSecColor = '#FFFFFF';
         this.colors = [
             '#000000', '#7C7E7C', '#7C0204', '#7C7E04', '#047E04', '#047E7C', '#04027C',
             '#7C027C', '#7C7E3C', '#043E3C', '#047EFC', '#043E7C', '#3C02FC', '#7C3E04',
@@ -400,6 +432,7 @@ class Colorbox {
         this.appendColorbox();
         this.appendColorpicker();
         this.updateColor();
+        this.updateSecColor();
     }
 
     appendColorbox(){
@@ -410,7 +443,7 @@ class Colorbox {
         this.colorbox2 = document.createElement('div');
 
         this.colorbox1.className = 'color-preview-1 color';
-        this.colorbox1.setAttribute('style', 'background-color: '+this._selectedColor);
+        this.colorbox1.setAttribute('style', 'background-color: '+this.selectedColor);
         this.colorbox2.className = 'color-preview-2 color';
 
         this.colorbox.appendChild(this.colorbox1);
@@ -434,7 +467,8 @@ class Colorbox {
             itemInput.setAttribute('name', 'color');
             itemInput.setAttribute('value', this.colors[i]);
             itemInput.addEventListener('change', this.changeColor);
-            this._selectedColor === this.colors[i] ? itemInput.setAttribute('checked', 'checked') : '';
+            itemInput.addEventListener('contextmenu', this.changeSecColor);
+            this.selectedColor === this.colors[i] ? itemInput.setAttribute('checked', 'checked') : '';
 
             itemLi.appendChild(itemInput);
             this.colorpicker.appendChild(itemLi);
@@ -444,13 +478,23 @@ class Colorbox {
     }
 
     changeColor = item => {
-        this._selectedColor = item.target.value;
+        this.selectedColor = item.target.value;
         this.updateColor();
     };
 
     updateColor() {
-        this.delegate.colorChanged(this._selectedColor);
-        this.colorbox1.setAttribute('style', 'background-color: '+this._selectedColor);
+        this.delegate.colorChanged(this.selectedColor);
+        this.colorbox1.setAttribute('style', 'background-color: '+this.selectedColor);
+    }
+
+    changeSecColor = item => {
+        this.selectedSecColor = item.target.value;
+        this.updateSecColor();
+    };
+
+    updateSecColor() {
+        this.delegate.secColorChanged(this.selectedSecColor);
+        this.colorbox2.setAttribute('style', 'background-color: '+this.selectedSecColor);
     }
 }
 
@@ -517,26 +561,30 @@ class Rect extends DrawObject
     height:number;
     hasline:boolean;
     innerColor:string;
+    lineColor:string;
 
     constructor(c:any, x:number, y:number, hasLine:boolean, lineColor:string, lineWidth:number, hasFill:boolean, fillColor:string){
         super(c, x, y, lineColor, lineWidth);
         this.hasline = hasLine;
         this.innerColor = fillColor;
+        this.lineColor = lineColor;
     }
 
     createObject(x:number, y:number){
-        this.c.fillStyle = this.innerColor;
-
         this.width = x - this.xStart;
         this.height = y - this.yStart;
     }
 
     drawObject(){
+        this.c.beginPath();
         this.c.fillStyle = this.innerColor;
-        this.c.fillRect(this.xStart, this.yStart, this.width, this.height);
+        this.c.strokeStyle = this.lineColor;
+        this.c.lineWidth = this.lineWidth;
+        this.c.rect(this.xStart, this.yStart, this.width, this.height);
+        this.c.fill();
+        this.c.stroke();
 
         super.drawObject();
-
     }
 }
 
