@@ -87,7 +87,7 @@ class Canvas
         this.pencilEventListener();
         this.brushEventListener();
         this.eraserEventListener();
-        this.cirlceEventListener();
+        this.circleEventListener();
         this.squareEventListener();
         this.buttonsEventListeners();
     }
@@ -175,7 +175,7 @@ class Canvas
         });
     }
 
-    cirlceEventListener(){
+    circleEventListener(){
         window.addEventListener('mousemove', event => {
             if (this.currentTool == tools.elipse && event.target === this.canvas) {
                 if(!this.startOfObject){
