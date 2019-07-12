@@ -247,7 +247,7 @@ class Canvas
 class Toolbox
 {
     toolbox:HTMLElement;
-    _selectedTool:number;
+    selectedTool:number;
     totalTools:number;
     delegate:IToolboxObserver;
     height:number;
@@ -256,7 +256,7 @@ class Toolbox
         this.delegate = delegate;
         this.height = height;
         this.totalTools = 16;
-        this._selectedTool = 6;
+        this.selectedTool = 6;
         this.updateTool();
         this.appendToolbox();
     }
@@ -275,7 +275,7 @@ class Toolbox
             itemInput.setAttribute('name', 'tool');
             itemInput.setAttribute('value', i.toString());
             itemInput.addEventListener('change', this.changeTool);
-            this._selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
+            this.selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
             itemIcon.className = 'tool-bar-icon';
             itemIcon.setAttribute('style', 'background-image: url("icons/'+ i +'.png")');
 
@@ -291,12 +291,12 @@ class Toolbox
     }
 
     changeTool = item => {
-        this._selectedTool = item.target.value;
+        this.selectedTool = item.target.value;
         this.updateTool();
     };
 
     updateTool() {
-        this.delegate.toolChanged(this._selectedTool);
+        this.delegate.toolChanged(this.selectedTool);
     }
 }
 
@@ -309,13 +309,13 @@ class Colorbox {
     colorbox2:HTMLElement;
     colorpicker:HTMLElement;
     colorbar:HTMLElement;
-    _selectedColor:string;
+    selectedColor:string;
     colors:string[];
     delegate:IToolboxObserver;
 
     constructor(delegate:IToolboxObserver){
         this.delegate = delegate;
-        this._selectedColor = '#000000';
+        this.selectedColor = '#000000';
         this.colors = [
             '#000000', '#7C7E7C', '#7C0204', '#7C7E04', '#047E04', '#047E7C', '#04027C',
             '#7C027C', '#7C7E3C', '#043E3C', '#047EFC', '#043E7C', '#3C02FC', '#7C3E04',
@@ -340,7 +340,7 @@ class Colorbox {
         this.colorbox2 = document.createElement('div');
 
         this.colorbox1.className = 'color-preview-1 color';
-        this.colorbox1.setAttribute('style', 'background-color: '+this._selectedColor);
+        this.colorbox1.setAttribute('style', 'background-color: '+this.selectedColor);
         this.colorbox2.className = 'color-preview-2 color';
 
         this.colorbox.appendChild(this.colorbox1);
@@ -364,7 +364,7 @@ class Colorbox {
             itemInput.setAttribute('name', 'color');
             itemInput.setAttribute('value', this.colors[i]);
             itemInput.addEventListener('change', this.changeColor);
-            this._selectedColor === this.colors[i] ? itemInput.setAttribute('checked', 'checked') : '';
+            this.selectedColor === this.colors[i] ? itemInput.setAttribute('checked', 'checked') : '';
 
             itemLi.appendChild(itemInput);
             this.colorpicker.appendChild(itemLi);
@@ -374,13 +374,13 @@ class Colorbox {
     }
 
     changeColor = item => {
-        this._selectedColor = item.target.value;
+        this.selectedColor = item.target.value;
         this.updateColor();
     };
 
     updateColor() {
-        this.delegate.colorChanged(this._selectedColor);
-        this.colorbox1.setAttribute('style', 'background-color: '+this._selectedColor);
+        this.delegate.colorChanged(this.selectedColor);
+        this.colorbox1.setAttribute('style', 'background-color: '+this.selectedColor);
     }
 }
 

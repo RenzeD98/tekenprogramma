@@ -68,7 +68,7 @@ var Canvas = /** @class */ (function () {
         this.pencilEventListener();
         this.brushEventListener();
         this.eraserEventListener();
-        this.cirlceEventListener();
+        this.circleEventListener();
         this.squareEventListener();
         this.buttonsEventListeners();
     }
@@ -158,7 +158,7 @@ var Canvas = /** @class */ (function () {
             }
         });
     };
-    Canvas.prototype.cirlceEventListener = function () {
+    Canvas.prototype.circleEventListener = function () {
         var _this = this;
         window.addEventListener('mousemove', function (event) {
             if (_this.currentTool == tools.elipse && event.target === _this.canvas) {
@@ -225,13 +225,13 @@ var Toolbox = /** @class */ (function () {
     function Toolbox(delegate, height) {
         var _this = this;
         this.changeTool = function (item) {
-            _this._selectedTool = item.target.value;
+            _this.selectedTool = item.target.value;
             _this.updateTool();
         };
         this.delegate = delegate;
         this.height = height;
         this.totalTools = 16;
-        this._selectedTool = 6;
+        this.selectedTool = 6;
         this.updateTool();
         this.appendToolbox();
     }
@@ -247,7 +247,7 @@ var Toolbox = /** @class */ (function () {
             itemInput.setAttribute('name', 'tool');
             itemInput.setAttribute('value', i.toString());
             itemInput.addEventListener('change', this.changeTool);
-            this._selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
+            this.selectedTool === i ? itemInput.setAttribute('checked', 'checked') : '';
             itemIcon.className = 'tool-bar-icon';
             itemIcon.setAttribute('style', 'background-image: url("icons/' + i + '.png")');
             itemLi.appendChild(itemInput);
@@ -259,7 +259,7 @@ var Toolbox = /** @class */ (function () {
         toolbar.appendChild(this.toolbox);
     };
     Toolbox.prototype.updateTool = function () {
-        this.delegate.toolChanged(this._selectedTool);
+        this.delegate.toolChanged(this.selectedTool);
     };
     return Toolbox;
 }());
@@ -270,11 +270,11 @@ var Colorbox = /** @class */ (function () {
     function Colorbox(delegate) {
         var _this = this;
         this.changeColor = function (item) {
-            _this._selectedColor = item.target.value;
+            _this.selectedColor = item.target.value;
             _this.updateColor();
         };
         this.delegate = delegate;
-        this._selectedColor = '#000000';
+        this.selectedColor = '#000000';
         this.colors = [
             '#000000', '#7C7E7C', '#7C0204', '#7C7E04', '#047E04', '#047E7C', '#04027C',
             '#7C027C', '#7C7E3C', '#043E3C', '#047EFC', '#043E7C', '#3C02FC', '#7C3E04',
@@ -294,7 +294,7 @@ var Colorbox = /** @class */ (function () {
         this.colorbox1 = document.createElement('div');
         this.colorbox2 = document.createElement('div');
         this.colorbox1.className = 'color-preview-1 color';
-        this.colorbox1.setAttribute('style', 'background-color: ' + this._selectedColor);
+        this.colorbox1.setAttribute('style', 'background-color: ' + this.selectedColor);
         this.colorbox2.className = 'color-preview-2 color';
         this.colorbox.appendChild(this.colorbox1);
         this.colorbox.appendChild(this.colorbox2);
@@ -312,15 +312,15 @@ var Colorbox = /** @class */ (function () {
             itemInput.setAttribute('name', 'color');
             itemInput.setAttribute('value', this.colors[i]);
             itemInput.addEventListener('change', this.changeColor);
-            this._selectedColor === this.colors[i] ? itemInput.setAttribute('checked', 'checked') : '';
+            this.selectedColor === this.colors[i] ? itemInput.setAttribute('checked', 'checked') : '';
             itemLi.appendChild(itemInput);
             this.colorpicker.appendChild(itemLi);
         }
         this.colorbar.appendChild(this.colorpicker);
     };
     Colorbox.prototype.updateColor = function () {
-        this.delegate.colorChanged(this._selectedColor);
-        this.colorbox1.setAttribute('style', 'background-color: ' + this._selectedColor);
+        this.delegate.colorChanged(this.selectedColor);
+        this.colorbox1.setAttribute('style', 'background-color: ' + this.selectedColor);
     };
     return Colorbox;
 }());
@@ -424,4 +424,3 @@ var Arc = /** @class */ (function (_super) {
 //Create Paint Programm
 // new ConstructProgram(1000, 600);
 new ConstructProgram(window.innerWidth - 150, window.innerHeight - 184);
-//# sourceMappingURL=scripts.js.map
